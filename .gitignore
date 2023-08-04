@@ -1,0 +1,7 @@
+# IDEs
+.vs/
+.vscode/
+
+# Builds and debugging
+*/bin/*
+*/obj/*
