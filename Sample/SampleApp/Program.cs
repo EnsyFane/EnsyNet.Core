@@ -23,7 +23,7 @@ var sorting = new SortingQuery<TestEntity, Guid>()
 
 IRepository<TestEntity> repository = null!;
 await repository.GetById(Guid.NewGuid());
-await repository.GetOneByExpression(filter);
+await repository.GetByExpression(filter);
 await repository.GetAll();
 await repository.GetAll(sorting);
 await repository.GetMany(pagination);

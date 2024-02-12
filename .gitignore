@@ -3,5 +3,5 @@
 .vscode/
 
 # Builds and debugging
-*/bin/*
-*/obj/*
+**/bin/**
+**/obj/**

@@ -8,5 +8,5 @@
 public sealed record SortingQuery<T, TKey> where T : DbEntity
 {
     public required Func<T, TKey> SortFieldSelector { get; init; }
-    public required bool Ascending { get; init; }
+    public bool Ascending { get; init; } = true;
 }

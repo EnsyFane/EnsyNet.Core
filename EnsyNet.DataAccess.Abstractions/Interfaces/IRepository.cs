@@ -24,12 +24,12 @@ public interface IRepository<T> where T : DbEntity
     /// Retrieves the first entity from the database that matches the given filter.
     /// </summary>
     /// <returns>
-    /// <param name="filter">The filter to be used for the database query.</param>
+    /// <param name="filter">The filter expression to be used for the database query.</param>
     /// The found entity or <br/>
     /// An <see cref="Errors.EntityNotFoundError"/> if no entity was found or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<T>> GetOneByExpression(Func<T, bool> filter);
+    Task<Result<T>> GetByExpression(Func<T, bool> filter);
 
     /// <summary>
     /// Retrieves all entities from the database. 

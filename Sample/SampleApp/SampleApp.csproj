@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EnsyNet.Core\EnsyNet.Core.csproj" />
-    <ProjectReference Include="..\EnsyNet.DataAccess.Abstractions\EnsyNet.DataAccess.Abstractions.csproj" />
+    <ProjectReference Include="..\..\EnsyNet.Core\EnsyNet.Core.csproj" />
+    <ProjectReference Include="..\..\EnsyNet.DataAccess.Abstractions\EnsyNet.DataAccess.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
