@@ -4,7 +4,7 @@
 /// Wrapper record used as a return type for methods that can fail.
 /// </summary>
 /// <remarks>
-/// Used to avoid using exceptions for control flow.
+/// Used to avoid using exceptions for flow control.
 /// If the method fails, the <see cref="Error"/> property will be populated.
 /// </remarks>
 public record Result
