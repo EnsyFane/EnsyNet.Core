@@ -21,63 +21,8 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     }
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetAll(CancellationToken ct)
-    {
-        try
-        {
-            var entities = await _dbSet.ToListAsync(ct);
-            return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting all entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetAll<TKey>(SortingQuery<T, TKey> sortingQuery, CancellationToken ct)
-    {
-        try
-        {
-            var entities = sortingQuery.IsAscending
-                ? await _dbSet.OrderBy(x => sortingQuery.SortFieldSelector(x)).ToListAsync(ct)
-                : await _dbSet.OrderByDescending(x => sortingQuery.SortFieldSelector(x)).ToListAsync(ct);
-
-            return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting all sorted entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<Result<T>> GetByExpression(Func<T, bool> filter, CancellationToken ct)
-    {
-        try
-        {
-            var entity = await _dbSet.Where(x => filter(x)).FirstOrDefaultAsync(ct);
-
-            if (entity is null)
-            {
-                return Result.FromError<T>(new EntityNotFoundError());
-            }
-
-            return Result.Ok(entity);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting all entities of type {EntityType} using expression. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<T>(new UnexpectedDatabaseError(ex));
-        }
-    }
-
-    /// <inheritdoc />
     public async Task<Result<T>> GetById(Guid id, CancellationToken ct)
-    {
-        try
+        => await ExecuteDbQuery(async () =>
         {
             var entity = await _dbSet.Where(x => x.Id == id).FirstOrDefaultAsync(ct);
 
@@ -87,18 +32,44 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             }
 
             return Result.Ok(entity);
-        }
-        catch (Exception ex)
+        });
+
+    /// <inheritdoc />
+    public async Task<Result<T>> GetByExpression(Func<T, bool> filter, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
         {
-            _logger.LogError("Error while getting entity of type {EntityType} with Id: {Id}. Exception: {Exception}.", typeof(T).Name, id, ex);
-            return Result.FromError<T>(new UnexpectedDatabaseError(ex));
-        }
-    }
+            var entity = await _dbSet.Where(x => filter(x)).FirstOrDefaultAsync(ct);
+
+            if (entity is null)
+            {
+                return Result.FromError<T>(new EntityNotFoundError());
+            }
+
+            return Result.Ok(entity);
+        });
+
+    /// <inheritdoc />
+    public async Task<Result<IEnumerable<T>>> GetAll(CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var entities = await _dbSet.ToListAsync(ct);
+            return Result.Ok<IEnumerable<T>>(entities);
+        });
+
+    /// <inheritdoc />
+    public async Task<Result<IEnumerable<T>>> GetAll<TKey>(SortingQuery<T, TKey> sortingQuery, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var entities = sortingQuery.IsAscending
+                ? await _dbSet.OrderBy(x => sortingQuery.SortFieldSelector(x)).ToListAsync(ct)
+                : await _dbSet.OrderByDescending(x => sortingQuery.SortFieldSelector(x)).ToListAsync(ct);
+
+            return Result.Ok<IEnumerable<T>>(entities);
+        });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, CancellationToken ct)
-    {
-        try
+        => await ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet
                 .Skip(paginationQuery.Skip)
@@ -106,19 +77,13 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 .ToListAsync(ct);
 
             return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting paginated entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
+        });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> GetMany<TKey>(PaginationQuery paginationQuery, SortingQuery<T, TKey> sortingQuery, CancellationToken ct)
-    {
-        try
+        => await ExecuteDbQuery(async () =>
         {
+
             var orderedEntities = sortingQuery.IsAscending
                 ? _dbSet.OrderBy(x => sortingQuery.SortFieldSelector(x))
                 : _dbSet.OrderByDescending(x => sortingQuery.SortFieldSelector(x));
@@ -129,36 +94,22 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 .ToListAsync(ct);
 
             return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting sorted and paginated entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
+        });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> GetManyByExpression(Func<T, bool> filter, CancellationToken ct)
-    {
-        try
+        => await ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet
                 .Where(x => filter(x))
                 .ToListAsync(ct);
 
             return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting filtered entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
+        });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> GetManyByExpression(Func<T, bool> filter, PaginationQuery paginationQuery, CancellationToken ct)
-    {
-        try
+        => await ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet
                 .Where(x => filter(x))
@@ -167,18 +118,11 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 .ToListAsync(ct);
 
             return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting paginated and filtered entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
+        });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> GetManyByExpression<TKey>(Func<T, bool> filter, SortingQuery<T, TKey> sortingQuery, CancellationToken ct)
-    {
-        try
+        => await ExecuteDbQuery(async () =>
         {
             var orderedEntities = sortingQuery.IsAscending
                 ? _dbSet.OrderBy(x => sortingQuery.SortFieldSelector(x))
@@ -189,18 +133,11 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 .ToListAsync(ct);
 
             return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting sorted and filtered entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
+        });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> GetManyByExpression<TKey>(Func<T, bool> filter, PaginationQuery paginationQuery, SortingQuery<T, TKey> sortingQuery, CancellationToken ct)
-    {
-        try
+        => await ExecuteDbQuery(async () =>
         {
             var orderedEntities = sortingQuery.IsAscending
                 ? _dbSet.OrderBy(x => sortingQuery.SortFieldSelector(x))
@@ -213,31 +150,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 .ToListAsync(ct);
 
             return Result.Ok<IEnumerable<T>>(entities);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Error while getting paginated, sorted and filtered entities of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<IEnumerable<T>>(new UnexpectedDatabaseError(ex));
-        }
-    }
-
-    /// <inheritdoc />
-    public Task<Result<int>> HardDelete(Guid id, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc />
-    public Task<Result<int>> HardDelete(IEnumerable<Guid> ids, CancellationToken ct, bool isAtomic = true)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc />
-    public Task<Result<int>> HardDelete(Func<T, bool> filter, CancellationToken ct, bool isAtomic = true)
-    {
-        throw new NotImplementedException();
-    }
+        });
 
     /// <inheritdoc />
     public Task<Result<T>> Insert(T entity, CancellationToken ct)
@@ -246,38 +159,111 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     }
 
     /// <inheritdoc />
-    public Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct, bool isAtomic = true)
+    public Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct)
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public Task<Result<int>> SoftDelete(Guid id, CancellationToken ct)
+    public Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct, bool isAtomic = true)
+    public Task<Result<bool>> Update(T entity, CancellationToken ct)
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public Task<Result<int>> SoftDelete(Func<T, bool> filter, CancellationToken ct, bool isAtomic = true)
+    public Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct)
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public Task<Result<int>> Update(T entity, CancellationToken ct)
+    public Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct)
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct, bool isAtomic = true)
+    public Task<Result<bool>> SoftDelete(Guid id, CancellationToken ct)
     {
         throw new NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public Task<Result<int>> SoftDelete(Func<T, bool> filter, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public Task<Result<int>> SoftDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<bool>> HardDelete(Guid id, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet.Where(x => x.Id == id).ExecuteDeleteAsync(ct);
+
+            return Result.Ok(affectedRows == 1);
+        });
+
+    /// <inheritdoc />
+    public Task<Result<int>> HardDelete(Func<T, bool> filter, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<int>> HardDelete(IEnumerable<Guid> ids, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet.Where(x => ids.Contains(x.Id)).ExecuteDeleteAsync(ct);
+
+            return Result.Ok(affectedRows);
+        });
+
+    /// <inheritdoc />
+    public Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public Task<Result<int>> HardDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected async Task<Result<TResult>> ExecuteDbQuery<TResult>(Func<Task<Result<TResult>>> func)
+    {
+        try
+        {
+            return await func();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Error while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
+            return Result.FromError<TResult>(new UnexpectedDatabaseError(ex));
+        }
     }
 }

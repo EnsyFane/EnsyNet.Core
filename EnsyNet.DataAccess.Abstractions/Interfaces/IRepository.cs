@@ -149,13 +149,24 @@ public interface IRepository<T> where T : DbEntity
     /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
     /// <param name="entities">The entities to insert.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <param name="isAtomic">If set to true then if one insertion fails then all insertions will be reverted and the operation fails, otherwise the operation will succeed even if not all entities were succesfully inserted.</param>
     /// <returns>
     /// The inserted entities or <br/>
-    /// An <see cref="Errors.BulkInsertOperationFailedError"/> if <paramref name="isAtomic"/> is set to true and one insertion fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct, bool isAtomic = true);
+    Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct);
+
+    /// <summary>
+    /// Inserts multiple entities into the database. Will fail and revert if one insertion fails.
+    /// </summary>
+    /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
+    /// <param name="entities">The entities to insert.</param>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// The inserted entities or <br/>
+    /// An <see cref="Errors.BulkInsertOperationFailedError"/> if one insertion fails or <br/>
+    /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
+    /// </returns>
+    Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct);
 
     /// <summary>
     /// Updates a single entity from the database.
@@ -164,11 +175,11 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="entity">The updated entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// The number of updated entities or <br/>
+    /// True if the entity was updated, false otherwise or <br/>
     /// An <see cref="Errors.UpdateOperationFailedError"/> if update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> Update(T entity, CancellationToken ct);
+    Task<Result<bool>> Update(T entity, CancellationToken ct);
 
     /// <summary>
     /// Updates multiple entities from the database.
@@ -176,13 +187,24 @@ public interface IRepository<T> where T : DbEntity
     /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be update manually.</remarks>
     /// <param name="entities">The entities to update.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <param name="isAtomic">If set to true then if one update fails then all updates will be reverted and the operation fails, otherwise the operation will succeed even if not all entities were succesfully updated.</param>
     /// <returns>
     /// The number of updated entities or <br/>
-    /// An <see cref="Errors.BulkUpdateOperationFailedError"/> if <paramref name="isAtomic"/> is set to true and one update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct, bool isAtomic = true);
+    Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct);
+
+    /// <summary>
+    /// Updates multiple entities from the database. Will fail and rollback if one update fails.
+    /// </summary>
+    /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be update manually.</remarks>
+    /// <param name="entities">The entities to update.</param>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// The number of updated entities or <br/>
+    /// An <see cref="Errors.BulkUpdateOperationFailedError"/> if one update fails or <br/>
+    /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
+    /// </returns>
+    Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct);
 
     /// <summary>
     /// Soft deletes a single entity from the database based on id.
@@ -190,37 +212,57 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="id">The id of the entity to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// The number of soft deleted entities or <br/>
+    /// True if the entity was soft deleted, false otherwise or <br/>
     /// An <see cref="Errors.DeleteOperationFailedError"/> if soft deleteion fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> SoftDelete(Guid id, CancellationToken ct);
+    Task<Result<bool>> SoftDelete(Guid id, CancellationToken ct);
 
     /// <summary>
     /// Soft delete multiple entities from the database based on ids.
     /// </summary>
     /// <param name="ids">The ids of the entities to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <param name="isAtomic">If set to true then if one soft delete fails then all soft deletes will be reverted and the operation fails, otherwise the operation will succeed even if not all entities were succesfully soft deleted.</param>
     /// <returns>
     /// The number of soft deleted entities or <br/>
-    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if <paramref name="isAtomic"/> is set to true and one soft delete fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct, bool isAtomic = true);
+    Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct);
 
     /// <summary>
     /// Soft delete multiple entities from the database based on a given filter.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <param name="isAtomic">If set to true then if one soft delete fails then all soft deletes will be reverted and the operation fails, otherwise the operation will succeed even if not all entities were succesfully soft deleted.</param>
     /// <returns>
     /// The number of soft deleted entities or <br/>
-    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if <paramref name="isAtomic"/> is set to true and one soft delete fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> SoftDelete(Func<T, bool> filter, CancellationToken ct, bool isAtomic = true);
+    Task<Result<int>> SoftDelete(Func<T, bool> filter, CancellationToken ct);
+
+    /// <summary>
+    /// Soft delete multiple entities from the database based on ids. Will fail and rollback if one soft delete fails.
+    /// </summary>
+    /// <param name="ids">The ids of the entities to soft delete.</param>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// The number of soft deleted entities or <br/>
+    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if one soft delete fails or <br/>
+    /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
+    /// </returns>
+    Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct);
+
+    /// <summary>
+    /// Soft delete multiple entities from the database based on a given filter. Will fail and rollback if one soft delete fails.
+    /// </summary>
+    /// <param name="filter">The filter to apply to search for entities to soft delete.</param>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// The number of soft deleted entities or <br/>
+    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if one soft delete fails or <br/>
+    /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
+    /// </returns>
+    Task<Result<int>> SoftDeleteAtomic(Func<T, bool> filter, CancellationToken ct);
 
     /// <summary>
     /// Hard deletes a single entity from the database based on id.
@@ -228,35 +270,55 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="id">The id of the entity to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// The number of hard deleted entities or <br/>
+    /// True if an entity was deleted, false otherwise or <br/>
     /// An <see cref="Errors.DeleteOperationFailedError"/> if hard deleteion fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> HardDelete(Guid id, CancellationToken ct);
+    Task<Result<bool>> HardDelete(Guid id, CancellationToken ct);
 
     /// <summary>
     /// Hard delete multiple entities from the database based on ids.
     /// </summary>
     /// <param name="ids">The ids of the entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <param name="isAtomic">If set to true then if one hard delete fails then all hard deletes will be reverted and the operation fails, otherwise the operation will succeed even if not all entities were succesfully hard deleted.</param>
     /// <returns>
     /// The number of hard deleted entities or <br/>
-    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if <paramref name="isAtomic"/> is set to true and one hard delete fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> HardDelete(IEnumerable<Guid> ids, CancellationToken ct, bool isAtomic = true);
+    Task<Result<int>> HardDelete(IEnumerable<Guid> ids, CancellationToken ct);
 
     /// <summary>
     /// Hard delete multiple entities from the database based on a given filter.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    /// <param name="isAtomic">If set to true then if one hard delete fails then all hard deletes will be reverted and the operation fails, otherwise the operation will succeed even if not all entities were succesfully hard deleted.</param>
     /// <returns>
     /// The number of hard deleted entities or <br/>
-    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if <paramref name="isAtomic"/> is set to true and one hard delete fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> HardDelete(Func<T, bool> filter, CancellationToken ct, bool isAtomic = true);
+    Task<Result<int>> HardDelete(Func<T, bool> filter, CancellationToken ct);
+
+    /// <summary>
+    /// Hard delete multiple entities from the database based on ids. Will fail and rollback if one hard delete fails.
+    /// </summary>
+    /// <param name="ids">The ids of the entities to hard delete.</param>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// The number of hard deleted entities or <br/>
+    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if one hard delete fails or <br/>
+    /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
+    /// </returns>
+    Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct);
+
+    /// <summary>
+    /// Hard delete multiple entities from the database based on a given filter. Will fail and rollback if one hard delete fails.
+    /// </summary>
+    /// <param name="filter">The filter to apply to search for entities to hard delete.</param>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// The number of hard deleted entities or <br/>
+    /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if one hard delete fails or <br/>
+    /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
+    /// </returns>
+    Task<Result<int>> HardDeleteAtomic(Func<T, bool> filter, CancellationToken ct);
 }
