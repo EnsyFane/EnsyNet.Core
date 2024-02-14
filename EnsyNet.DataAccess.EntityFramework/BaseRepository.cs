@@ -11,11 +11,13 @@ namespace EnsyNet.DataAccess.EntityFramework;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Needed until we know what exceptions can be thrown by EF.")]
 public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 {
+    private readonly DbContext _dbContext;
     private readonly DbSet<T> _dbSet;
     private readonly ILogger _logger;
 
-    protected BaseRepository(DbSet<T> dbSet, ILogger logger)
+    protected BaseRepository(DbContext dbContext, DbSet<T> dbSet, ILogger logger)
     {
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _dbSet = dbSet ?? throw new ArgumentNullException(nameof(dbSet));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -153,16 +155,24 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public Task<Result<T>> Insert(T entity, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<T>> Insert(T entity, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            await _dbSet.AddAsync(entity, ct);
+            await _dbContext.SaveChangesAsync(ct);
+
+            return Result.Ok(entity);
+        });
 
     /// <inheritdoc />
-    public Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            await _dbSet.AddRangeAsync(entities, ct);
+            await _dbContext.SaveChangesAsync(ct);
+
+            return Result.Ok(entities);
+        });
 
     /// <inheritdoc />
     public Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
@@ -171,16 +181,30 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     }
 
     /// <inheritdoc />
-    public Task<Result<bool>> Update(T entity, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<bool>> Update(T entity, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => x.Id == entity.Id)
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity) , ct);
+
+            return Result.Ok(affectedRows == 1);
+        });
 
     /// <inheritdoc />
-    public Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var totalAffectedRows = 0;
+            foreach(var entity in entities)
+            {
+                var affectedRows = await _dbSet
+                    .Where(x => x.Id == entity.Id)
+                    .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity), ct);
+                totalAffectedRows += affectedRows;
+            }
+            return Result.Ok(totalAffectedRows);
+        });
 
     /// <inheritdoc />
     public Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct)
@@ -189,22 +213,37 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     }
 
     /// <inheritdoc />
-    public Task<Result<bool>> SoftDelete(Guid id, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<bool>> SoftDelete(Guid id, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => x.Id == id)
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
+
+            return Result.Ok(affectedRows == 1);
+        });
 
     /// <inheritdoc />
-    public Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
+
+            return Result.Ok(affectedRows);
+        });
 
     /// <inheritdoc />
-    public Task<Result<int>> SoftDelete(Func<T, bool> filter, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> SoftDelete(Func<T, bool> filter, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => filter(x))
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
+
+            return Result.Ok(affectedRows);
+        });
 
     /// <inheritdoc />
     public Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
@@ -222,22 +261,31 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     public async Task<Result<bool>> HardDelete(Guid id, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            var affectedRows = await _dbSet.Where(x => x.Id == id).ExecuteDeleteAsync(ct);
+            var affectedRows = await _dbSet
+                .Where(x => x.Id == id)
+                .ExecuteDeleteAsync(ct);
 
             return Result.Ok(affectedRows == 1);
         });
 
     /// <inheritdoc />
-    public Task<Result<int>> HardDelete(Func<T, bool> filter, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc />
     public async Task<Result<int>> HardDelete(IEnumerable<Guid> ids, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            var affectedRows = await _dbSet.Where(x => ids.Contains(x.Id)).ExecuteDeleteAsync(ct);
+            var affectedRows = await _dbSet
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteDeleteAsync(ct);
+
+            return Result.Ok(affectedRows);
+        });
+
+    /// <inheritdoc />
+    public async Task<Result<int>> HardDelete(Func<T, bool> filter, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => filter(x))
+                .ExecuteDeleteAsync(ct);
 
             return Result.Ok(affectedRows);
         });
