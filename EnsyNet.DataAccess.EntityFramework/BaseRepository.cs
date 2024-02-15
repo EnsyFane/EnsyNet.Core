@@ -175,10 +175,14 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
+        => await ExecuteAtomicDbQuery(async () =>
+        {
+            await _dbSet.AddRangeAsync(entities, ct);
+            await _dbContext.SaveChangesAsync(ct);
+
+            return Result.Ok(entities);
+        }, ct);
 
     /// <inheritdoc />
     public async Task<Result<bool>> Update(T entity, CancellationToken ct)
@@ -207,10 +211,19 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct)
+        => await ExecuteAtomicDbQuery(async () =>
+        {
+            var totalAffectedRows = 0;
+            foreach (var entity in entities)
+            {
+                var affectedRows = await _dbSet
+                    .Where(x => x.Id == entity.Id)
+                    .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity), ct);
+                totalAffectedRows += affectedRows;
+            }
+            return Result.Ok(totalAffectedRows);
+        }, ct);
 
     /// <inheritdoc />
     public async Task<Result<bool>> SoftDelete(Guid id, CancellationToken ct)
@@ -246,16 +259,26 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
+        => await ExecuteAtomicDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
+
+            return Result.Ok(affectedRows);
+        }, ct);
 
     /// <inheritdoc />
-    public Task<Result<int>> SoftDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> SoftDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
+        => await ExecuteAtomicDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => filter(x))
+                .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
+
+            return Result.Ok(affectedRows);
+        }, ct);
 
     /// <inheritdoc />
     public async Task<Result<bool>> HardDelete(Guid id, CancellationToken ct)
@@ -291,16 +314,26 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
+        => await ExecuteAtomicDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteDeleteAsync(ct);
+
+            return Result.Ok(affectedRows);
+        }, ct);
 
     /// <inheritdoc />
-    public Task<Result<int>> HardDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Result<int>> HardDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
+        => await ExecuteAtomicDbQuery(async () =>
+        {
+            var affectedRows = await _dbSet
+                .Where(x => filter(x))
+                .ExecuteDeleteAsync(ct);
+
+            return Result.Ok(affectedRows);
+        }, ct);
 
     protected async Task<Result<TResult>> ExecuteDbQuery<TResult>(Func<Task<Result<TResult>>> func)
     {
@@ -308,10 +341,43 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         {
             return await func();
         }
-        catch (Exception ex)
+        catch (OperationCanceledException e)
         {
-            _logger.LogError("Error while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, ex);
-            return Result.FromError<TResult>(new UnexpectedDatabaseError(ex));
+            _logger.LogWarning(e, "Operation was cancelled while executing db query for entity of type {EntityType}.", typeof(T).Name);
+            throw;
+        }
+        catch (DbUpdateException e)
+        {
+            _logger.LogError("Error while saving changes to the database for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Error while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
+        }
+    }
+
+    protected async Task<Result<TResult>> ExecuteAtomicDbQuery<TResult>(Func<Task<Result<TResult>>> func, CancellationToken ct)
+    {
+        try
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+
+            var result = await ExecuteDbQuery(func);
+            if (result.HasError)
+            {
+                await transaction.RollbackAsync(ct);
+                return result;
+            }
+            await transaction.CommitAsync(ct);
+
+            return result;
+        }
+        catch (OperationCanceledException ex)
+        {
+            _logger.LogWarning(ex, "Operation was cancelled while executing atomic db query for entity of type {EntityType}.", typeof(T).Name);
+            throw;
         }
     }
 }
