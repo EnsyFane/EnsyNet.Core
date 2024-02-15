@@ -2,9 +2,12 @@
 
 namespace EnsyNet.DataAccess.Abstractions.Errors;
 
+/// <summary>
+/// Error returned when a bulk update operation fails.
+/// </summary>
 public sealed record BulkUpdateOperationFailedError : Error
 {
-    public BulkUpdateOperationFailedError(Exception exception) : base(ErrorCodes.BULK_UPDATE_OPERATION_FAILED_ERROR, exception)
+    public BulkUpdateOperationFailedError() : base(ErrorCodes.BULK_UPDATE_OPERATION_FAILED_ERROR)
     {
     }
 }

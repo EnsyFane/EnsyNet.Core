@@ -2,9 +2,12 @@
 
 namespace EnsyNet.DataAccess.Abstractions.Errors;
 
+/// <summary>
+/// Error returned when an insert operation fails.
+/// </summary>
 public sealed record InsertOperationFailedError : Error
 {
-    public InsertOperationFailedError(Exception exception) : base(ErrorCodes.INSERT_OPERATION_FAILED_ERROR, exception)
+    public InsertOperationFailedError() : base(ErrorCodes.INSERT_OPERATION_FAILED_ERROR)
     {
     }
 }

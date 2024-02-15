@@ -26,10 +26,13 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     public async Task<Result<T>> GetById(Guid id, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            var entity = await _dbSet.Where(x => x.Id == id).FirstOrDefaultAsync(ct);
+            var entity = await _dbSet
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync(ct);
 
             if (entity is null)
             {
+                _logger.LogWarning("Entity of type {EntityType} with id {EntityId} was not found.", typeof(T).Name, id);
                 return Result.FromError<T>(new EntityNotFoundError());
             }
 
@@ -40,10 +43,13 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     public async Task<Result<T>> GetByExpression(Func<T, bool> filter, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            var entity = await _dbSet.Where(x => filter(x)).FirstOrDefaultAsync(ct);
+            var entity = await _dbSet
+                .Where(x => filter(x))
+                .FirstOrDefaultAsync(ct);
 
             if (entity is null)
             {
+                _logger.LogWarning("Entity of type {EntityType} was not found.", typeof(T).Name);
                 return Result.FromError<T>(new EntityNotFoundError());
             }
 
@@ -161,7 +167,13 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteDbQuery(async () =>
         {
             await _dbSet.AddAsync(entity, ct);
-            await _dbContext.SaveChangesAsync(ct);
+            var affectedRows = await _dbContext.SaveChangesAsync(ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entity of type {EntityType} was not inserted.", typeof(T).Name);
+                return Result.FromError<T>(new InsertOperationFailedError());
+            }
 
             return Result.Ok(entity);
         });
@@ -171,30 +183,52 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteDbQuery(async () =>
         {
             await _dbSet.AddRangeAsync(entities, ct);
-            await _dbContext.SaveChangesAsync(ct);
+            var affectedRows = await _dbContext.SaveChangesAsync(ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not inserted.", typeof(T).Name);
+                return Result.FromError<IEnumerable<T>>(new BulkInsertOperationFailedError());
+            }
+            else if (affectedRows != entities.Count())
+            {
+                _logger.LogWarning("Not all entities of type {EntityType} were inserted.", typeof(T).Name);
+            }
 
             return Result.Ok(entities);
         });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+        => await ExecuteAtomicDbQuery<IEnumerable<T>, BulkInsertOperationFailedError>(async () =>
         {
             await _dbSet.AddRangeAsync(entities, ct);
-            await _dbContext.SaveChangesAsync(ct);
+            var affectedRows = await _dbContext.SaveChangesAsync(ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not inserted.", typeof(T).Name);
+                return Result.FromError<IEnumerable<T>>(new BulkInsertOperationFailedError());
+            }
 
             return Result.Ok(entities);
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result<bool>> Update(T entity, CancellationToken ct)
+    public async Task<Result<T>> Update(T entity, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => x.Id == entity.Id)
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity) , ct);
 
-            return Result.Ok(affectedRows == 1);
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entity of type {EntityType} with id {EntityId} was not updated.", typeof(T).Name, entity.Id);
+                return Result.FromError<T>(new UpdateOperationFailedError());
+            }
+
+            return Result.Ok(entity);
         });
 
     /// <inheritdoc />
@@ -209,12 +243,23 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                     .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity), ct);
                 totalAffectedRows += affectedRows;
             }
+
+            if (totalAffectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not updated.", typeof(T).Name);
+                return Result.FromError<int>(new BulkUpdateOperationFailedError());
+            }
+            else if (totalAffectedRows != entities.Count())
+            {
+                _logger.LogWarning("Not all entities of type {EntityType} were updated.", typeof(T).Name);
+            }
+
             return Result.Ok(totalAffectedRows);
         });
 
     /// <inheritdoc />
     public async Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+        => await ExecuteAtomicDbQuery<int, BulkUpdateOperationFailedError>(async () =>
         {
             var totalAffectedRows = 0;
             foreach (var entity in entities)
@@ -224,18 +269,31 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                     .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity), ct);
                 totalAffectedRows += affectedRows;
             }
+
+            if (totalAffectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not updated.", typeof(T).Name);
+                return Result.FromError<int>(new BulkUpdateOperationFailedError());
+            }
+
             return Result.Ok(totalAffectedRows);
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result<bool>> SoftDelete(Guid id, CancellationToken ct)
+    public async Task<Result> SoftDelete(Guid id, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => x.Id == id)
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
 
-            return Result.Ok(affectedRows == 1);
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entity of type {EntityType} with id {EntityId} was not soft deleted.", typeof(T).Name, id);
+                return Result.FromError<int>(new DeleteOperationFailedError());
+            }
+
+            return Result.Ok(1);
         });
 
     /// <inheritdoc />
@@ -245,6 +303,16 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             var affectedRows = await _dbSet
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
+            else if (affectedRows != ids.Count())
+            {
+                _logger.LogWarning("Not all entities of type {EntityType} were soft deleted.", typeof(T).Name);
+            }
 
             return Result.Ok(affectedRows);
         });
@@ -257,40 +325,64 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 .Where(x => filter(x))
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
 
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
+
             return Result.Ok(affectedRows);
         });
 
     /// <inheritdoc />
     public async Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
 
             return Result.Ok(affectedRows);
         }, ct);
 
     /// <inheritdoc />
     public async Task<Result<int>> SoftDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => filter(x))
                 .ExecuteUpdateAsync(x => x.SetProperty(t => t.DeletedAt, DateTime.UtcNow), ct);
 
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
+
             return Result.Ok(affectedRows);
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result<bool>> HardDelete(Guid id, CancellationToken ct)
+    public async Task<Result> HardDelete(Guid id, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => x.Id == id)
                 .ExecuteDeleteAsync(ct);
 
-            return Result.Ok(affectedRows == 1);
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entity of type {EntityType} with id {EntityId} was not hard deleted.", typeof(T).Name, id);
+                return Result.FromError<int>(new DeleteOperationFailedError());
+            }
+
+            return Result.Ok(1);
         });
 
     /// <inheritdoc />
@@ -300,6 +392,16 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             var affectedRows = await _dbSet
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteDeleteAsync(ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
+            else if (affectedRows != ids.Count())
+            {
+                _logger.LogWarning("Not all entities of type {EntityType} were hard deleted.", typeof(T).Name);
+            }
 
             return Result.Ok(affectedRows);
         });
@@ -312,27 +414,45 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 .Where(x => filter(x))
                 .ExecuteDeleteAsync(ct);
 
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
+
             return Result.Ok(affectedRows);
         });
 
     /// <inheritdoc />
     public async Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteDeleteAsync(ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
 
             return Result.Ok(affectedRows);
         }, ct);
 
     /// <inheritdoc />
     public async Task<Result<int>> HardDeleteAtomic(Func<T, bool> filter, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => filter(x))
                 .ExecuteDeleteAsync(ct);
+
+            if (affectedRows == 0)
+            {
+                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                return Result.FromError<int>(new BulkDeleteOperationFailedError());
+            }
 
             return Result.Ok(affectedRows);
         }, ct);
@@ -360,7 +480,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         }
     }
 
-    protected async Task<Result<TResult>> ExecuteAtomicDbQuery<TResult>(Func<Task<Result<TResult>>> func, CancellationToken ct)
+    protected async Task<Result<TResult>> ExecuteAtomicDbQuery<TResult, TError>(Func<Task<Result<TResult>>> func, CancellationToken ct) where TError : Error, new()
     {
         try
         {
@@ -370,7 +490,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             if (result.HasError)
             {
                 await transaction.RollbackAsync(ct);
-                return result;
+                return Result.FromError<TResult>(new TError());
             }
             await transaction.CommitAsync(ct);
 

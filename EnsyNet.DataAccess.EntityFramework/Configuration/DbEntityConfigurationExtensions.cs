@@ -1,11 +1,12 @@
 ﻿using EnsyNet.DataAccess.Abstractions.Models;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EnsyNet.DataAccess.EntityFramework;
+namespace EnsyNet.DataAccess.EntityFramework.Configuration;
 
-public static class BaseEntityConfiguration
+public static class DbEntityConfigurationExtensions
 {
     public static void Configure<T>(this EntityTypeBuilder<T> builder) where T : DbEntity
     {
