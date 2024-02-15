@@ -74,6 +74,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet
+                .OrderBy(x => x.Id)
                 .Skip(paginationQuery.Skip)
                 .Take(paginationQuery.Take)
                 .ToListAsync(ct);
@@ -115,6 +116,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         {
             var entities = await _dbSet
                 .Where(x => filter(x))
+                .OrderBy(x => x.Id)
                 .Skip(paginationQuery.Skip)
                 .Take(paginationQuery.Take)
                 .ToListAsync(ct);

@@ -10,7 +10,7 @@ namespace EnsyNet.DataAccess.Abstractions.Interfaces;
 public interface IRepository<T> where T : DbEntity
 {
     /// <summary>
-    /// Retrieves a single entity from the database by its ID.
+    /// Retrieves a single entity from the database by its <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The id of the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -22,7 +22,7 @@ public interface IRepository<T> where T : DbEntity
     Task<Result<T>> GetById(Guid id, CancellationToken ct);
 
     /// <summary>
-    /// Retrieves the first entity from the database that matches the given filter.
+    /// Retrieves the first entity from the database that matches the given <paramref name="filter"/>.
     /// </summary>
     /// <returns>
     /// <param name="filter">The filter expression to be used for the database query.</param>
@@ -36,7 +36,7 @@ public interface IRepository<T> where T : DbEntity
     /// <summary>
     /// Retrieves all entities from the database. 
     /// </summary>
-    /// <remarks>This might be a resource intensive operation.</remarks>
+    /// <remarks>This might be a resource intensive operation and can lead to an <see cref="OutOfMemoryException"/>.</remarks>
     /// <returns>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// The entities or <br/>
@@ -47,7 +47,7 @@ public interface IRepository<T> where T : DbEntity
     /// <summary>
     /// Retrieves all entities from the database sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
     /// </summary>
-    /// <remarks>This might be a resource intensive operation.</remarks>
+    /// <remarks>This might be a resource intensive operation and can lead to an <see cref="OutOfMemoryException"/>.</remarks>
     /// <param name="sortingQuery">The sorting query to use.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -118,7 +118,8 @@ public interface IRepository<T> where T : DbEntity
     Task<Result<IEnumerable<T>>> GetManyByExpression<TKey>(Func<T, bool> filter, SortingQuery<T, TKey> sortingQuery, CancellationToken ct);
 
     /// <summary>
-    /// Retrieves entities from the database based on the provided filter, paginated based on the provided <see cref="PaginationQuery"/> and sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
+    /// Retrieves entities from the database based on the provided filter, paginated based on the provided <see cref="PaginationQuery"/> 
+    /// and sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
     /// </summary>
     /// <param name="filter">The filter to use.</param>
     /// <param name="paginationQuery">The pagination query to use.</param>
@@ -133,7 +134,7 @@ public interface IRepository<T> where T : DbEntity
     /// <summary>
     /// Inserts a single entity into the database.
     /// </summary>
-    /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
     /// <param name="entity">The entity to insert.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -145,6 +146,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Inserts multiple entities into the database.
+    /// If one insertion fails, the operation will continue and the inserted entities will be returned.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
     /// <param name="entities">The entities to insert.</param>
@@ -157,6 +159,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Inserts multiple entities into the database. Will fail and revert if one insertion fails.
+    /// If one insertion fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
     /// <param name="entities">The entities to insert.</param>
@@ -171,7 +174,7 @@ public interface IRepository<T> where T : DbEntity
     /// <summary>
     /// Updates a single entity from the database.
     /// </summary>
-    /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be update manually.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
     /// <param name="entity">The updated entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -183,6 +186,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Updates multiple entities from the database.
+    /// If one update fails, the operation will continue and the updated entities will be returned.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be update manually.</remarks>
     /// <param name="entities">The entities to update.</param>
@@ -195,6 +199,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Updates multiple entities from the database. Will fail and rollback if one update fails.
+    /// If one update fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be update manually.</remarks>
     /// <param name="entities">The entities to update.</param>
@@ -212,7 +217,7 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="id">The id of the entity to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// True if the entity was soft deleted, false otherwise or <br/>
+    /// <see langword="true"/> if the entity was soft deleted, <see langword="false"/> otherwise or <br/>
     /// An <see cref="Errors.DeleteOperationFailedError"/> if soft deleteion fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
@@ -220,6 +225,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Soft delete multiple entities from the database based on ids.
+    /// If one soft delete fails, the operation will continue and the number of deleted entities will be returned.
     /// </summary>
     /// <param name="ids">The ids of the entities to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -231,6 +237,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Soft delete multiple entities from the database based on a given filter.
+    /// If one soft delete fails, the operation will continue and the number of deleted entities will be returned.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -242,6 +249,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Soft delete multiple entities from the database based on ids. Will fail and rollback if one soft delete fails.
+    /// If one soft delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="ids">The ids of the entities to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -254,6 +262,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Soft delete multiple entities from the database based on a given filter. Will fail and rollback if one soft delete fails.
+    /// If one soft delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -270,7 +279,7 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="id">The id of the entity to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// True if an entity was deleted, false otherwise or <br/>
+    /// <see langword="true"/> if an entity was deleted, <see langword="false"/> otherwise or <br/>
     /// An <see cref="Errors.DeleteOperationFailedError"/> if hard deleteion fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
@@ -278,6 +287,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Hard delete multiple entities from the database based on ids.
+    /// If one hard delete fails, the operation will continue and the number of deleted entities will be returned.
     /// </summary>
     /// <param name="ids">The ids of the entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -289,6 +299,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Hard delete multiple entities from the database based on a given filter.
+    /// If one hard delete fails, the operation will continue and the number of deleted entities will be returned.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -300,6 +311,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Hard delete multiple entities from the database based on ids. Will fail and rollback if one hard delete fails.
+    /// If one hard delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="ids">The ids of the entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -312,6 +324,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Hard delete multiple entities from the database based on a given filter. Will fail and rollback if one hard delete fails.
+    /// If one hard delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
