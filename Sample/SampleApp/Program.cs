@@ -2,6 +2,7 @@
 using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
+using Microsoft.EntityFrameworkCore.Query;
 
 var r = Result.Ok();
 Result<string> r2 = Result.Ok("Hello, World!");
@@ -32,8 +33,8 @@ await repository.GetManyByExpression(filter, sorting, cts.Token);
 await repository.GetManyByExpression(filter, pagination, sorting, cts.Token);
 await repository.Insert(entity, cts.Token);
 await repository.Insert(entities, cts.Token);
-await repository.Update(entity, cts.Token);
-await repository.Update(entities, cts.Token);
+await repository.Update(entity.Id, x => x.SetProperty(e => e.Name, "NewName"), cts.Token);
+await repository.Update(new Dictionary<Guid, Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>{ { entity.Id, x => x.SetProperty(e => e.Name, "NewName") } }, cts.Token);
 await repository.SoftDelete(Guid.NewGuid(), cts.Token);
 await repository.SoftDelete(new List<Guid> { Guid.NewGuid() }, cts.Token);
 await repository.SoftDelete(filter, cts.Token);
@@ -42,4 +43,7 @@ await repository.HardDelete(new List<Guid> { Guid.NewGuid() }, cts.Token);
 await repository.HardDelete(filter, cts.Token);
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1050:Declare types in namespaces", Justification = "Sample code. Not production.")]
-public sealed record TestEntity : DbEntity { };
+public sealed record TestEntity : DbEntity
+{
+    public string Name { get; set; } = string.Empty;
+}

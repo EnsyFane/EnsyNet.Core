@@ -4,6 +4,7 @@ using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 
 namespace EnsyNet.DataAccess.EntityFramework;
@@ -33,7 +34,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             if (entity is null)
             {
                 _logger.LogWarning("Entity of type {EntityType} with id {EntityId} was not found.", typeof(T).Name, id);
-                return Result.FromError<T>(new EntityNotFoundError());
+                return Result.FromError<T>(new EntityNotFoundError<T>());
             }
 
             return Result.Ok(entity);
@@ -50,7 +51,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             if (entity is null)
             {
                 _logger.LogWarning("Entity of type {EntityType} was not found.", typeof(T).Name);
-                return Result.FromError<T>(new EntityNotFoundError());
+                return Result.FromError<T>(new EntityNotFoundError<T>());
             }
 
             return Result.Ok(entity);
@@ -166,7 +167,9 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     public async Task<Result<T>> Insert(T entity, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            await _dbSet.AddAsync(entity, ct);
+            var sanitizedEntity = SanitizeEntityForInsert(entity);
+
+            await _dbSet.AddAsync(sanitizedEntity, ct);
             var affectedRows = await _dbContext.SaveChangesAsync(ct);
 
             if (affectedRows == 0)
@@ -175,14 +178,22 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 return Result.FromError<T>(new InsertOperationFailedError());
             }
 
-            return Result.Ok(entity);
+            return Result.Ok(sanitizedEntity);
         });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            await _dbSet.AddRangeAsync(entities, ct);
+            var sanitizedEntities = entities.Select(SanitizeEntityForInsert);
+
+            var insertTasks = sanitizedEntities.Select(async entity => 
+            { 
+                await _dbSet.AddAsync(entity, ct);
+                return entity;
+            });
+
+            var insertResults = await Task.WhenAll(insertTasks);
             var affectedRows = await _dbContext.SaveChangesAsync(ct);
 
             if (affectedRows == 0)
@@ -190,19 +201,27 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 _logger.LogError("Entities of type {EntityType} were not inserted.", typeof(T).Name);
                 return Result.FromError<IEnumerable<T>>(new BulkInsertOperationFailedError());
             }
-            else if (affectedRows != entities.Count())
+            else if (affectedRows != insertResults.Length)
             {
                 _logger.LogWarning("Not all entities of type {EntityType} were inserted.", typeof(T).Name);
             }
 
-            return Result.Ok(entities);
+            return Result.Ok(insertResults.AsEnumerable());
         });
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
         => await ExecuteAtomicDbQuery<IEnumerable<T>, BulkInsertOperationFailedError>(async () =>
         {
-            await _dbSet.AddRangeAsync(entities, ct);
+            var sanitizedEntities = entities.Select(SanitizeEntityForInsert);
+
+            var insertTasks = sanitizedEntities.Select(async entity =>
+            {
+                await _dbSet.AddAsync(entity, ct);
+                return entity;
+            });
+
+            var insertResults = await Task.WhenAll(insertTasks);
             var affectedRows = await _dbContext.SaveChangesAsync(ct);
 
             if (affectedRows == 0)
@@ -211,36 +230,36 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 return Result.FromError<IEnumerable<T>>(new BulkInsertOperationFailedError());
             }
 
-            return Result.Ok(entities);
+            return Result.Ok(insertResults.AsEnumerable());
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result<T>> Update(T entity, CancellationToken ct)
+    public async Task<Result> Update(Guid id, Func<SetPropertyCalls<T>, SetPropertyCalls<T>> updateFunc, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
-                .Where(x => x.Id == entity.Id)
-                .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity) , ct);
+                .Where(x => x.Id == id)
+                .ExecuteUpdateAsync(x => updateFunc(x), ct);
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entity of type {EntityType} with id {EntityId} was not updated.", typeof(T).Name, entity.Id);
-                return Result.FromError<T>(new UpdateOperationFailedError());
+                _logger.LogError("Entity of type {EntityType} with id {EntityId} was not updated.", typeof(T).Name, id);
+                return Result.FromError<int>(new UpdateOperationFailedError());
             }
 
-            return Result.Ok(entity);
+            return Result.Ok(1);
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct)
+    public async Task<Result<int>> Update(IDictionary<Guid, Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> idToUpdateMap, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var totalAffectedRows = 0;
-            foreach(var entity in entities)
+            foreach(var kvp in idToUpdateMap)
             {
                 var affectedRows = await _dbSet
-                    .Where(x => x.Id == entity.Id)
-                    .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity), ct);
+                    .Where(x => x.Id == kvp.Key)
+                    .ExecuteUpdateAsync(x => kvp.Value(x), ct);
                 totalAffectedRows += affectedRows;
             }
 
@@ -249,7 +268,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
                 _logger.LogError("Entities of type {EntityType} were not updated.", typeof(T).Name);
                 return Result.FromError<int>(new BulkUpdateOperationFailedError());
             }
-            else if (totalAffectedRows != entities.Count())
+            else if (totalAffectedRows != idToUpdateMap.Count)
             {
                 _logger.LogWarning("Not all entities of type {EntityType} were updated.", typeof(T).Name);
             }
@@ -258,15 +277,15 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct)
+    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> idToUpdateMap, CancellationToken ct)
         => await ExecuteAtomicDbQuery<int, BulkUpdateOperationFailedError>(async () =>
         {
             var totalAffectedRows = 0;
-            foreach (var entity in entities)
+            foreach (var kvp in idToUpdateMap)
             {
                 var affectedRows = await _dbSet
-                    .Where(x => x.Id == entity.Id)
-                    .ExecuteUpdateAsync(x => x.SetProperty(t => t, entity), ct);
+                    .Where(x => x.Id == kvp.Key)
+                    .ExecuteUpdateAsync(x => kvp.Value(x), ct);
                 totalAffectedRows += affectedRows;
             }
 
@@ -456,6 +475,14 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 
             return Result.Ok(affectedRows);
         }, ct);
+
+    protected T SanitizeEntityForInsert(T entity)
+        => entity with
+        {
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null,
+            DeletedAt = null,
+        };
 
     protected async Task<Result<TResult>> ExecuteDbQuery<TResult>(Func<Task<Result<TResult>>> func)
     {

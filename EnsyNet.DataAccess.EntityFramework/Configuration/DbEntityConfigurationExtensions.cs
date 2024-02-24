@@ -8,27 +8,28 @@ namespace EnsyNet.DataAccess.EntityFramework.Configuration;
 
 public static class DbEntityConfigurationExtensions
 {
-    public static void Configure<T>(this EntityTypeBuilder<T> builder) where T : DbEntity
+    public static void ConfigureBaseProperties<T>(this EntityTypeBuilder<T> builder) where T : DbEntity
     {
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("NEWSEQUENTIALID()");
         builder.Property(e => e.Id)
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
         builder.Property(e => e.Id)
             .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
 
         builder.Property(e => e.CreatedAt)
-            .ValueGeneratedOnAdd()
-            .HasDefaultValueSql("getdate()");
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnAdd();
         builder.Property(e => e.CreatedAt)
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
         builder.Property(e => e.CreatedAt)
             .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
 
         builder.Property(e => e.UpdatedAt)
-            .ValueGeneratedOnUpdate()
-            .HasDefaultValueSql("getdate()");
+            .HasDefaultValueSql("GETUTCDATE()")
+            .ValueGeneratedOnUpdate();
         builder.Property(e => e.UpdatedAt)
             .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
 

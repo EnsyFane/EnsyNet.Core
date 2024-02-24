@@ -1,5 +1,6 @@
 ﻿using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Models;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace EnsyNet.DataAccess.Abstractions.Interfaces;
 
@@ -10,13 +11,13 @@ namespace EnsyNet.DataAccess.Abstractions.Interfaces;
 public interface IRepository<T> where T : DbEntity
 {
     /// <summary>
-    /// Retrieves a single entity from the database by its <paramref name="id"/>.
+    /// Retrieves a single entity from the database by its <see cref="DbEntity.Id"/>.
     /// </summary>
     /// <param name="id">The id of the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
     /// The found entity or <br/>
-    /// An <see cref="Errors.EntityNotFoundError"/> if no entity was found or <br/>
+    /// An <see cref="Errors.EntityNotFoundError{T}"/> if no entity was found or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
     Task<Result<T>> GetById(Guid id, CancellationToken ct);
@@ -28,13 +29,13 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="filter">The filter expression to be used for the database query.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// The found entity or <br/>
-    /// An <see cref="Errors.EntityNotFoundError"/> if no entity was found or <br/>
+    /// An <see cref="Errors.EntityNotFoundError{T}"/> if no entity was found or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
     Task<Result<T>> GetByExpression(Func<T, bool> filter, CancellationToken ct);
 
     /// <summary>
-    /// Retrieves all entities from the database. 
+    /// Retrieves all entities from the database. Not recommended.
     /// </summary>
     /// <remarks>This might be a resource intensive operation and can lead to an <see cref="OutOfMemoryException"/>.</remarks>
     /// <returns>
@@ -45,7 +46,7 @@ public interface IRepository<T> where T : DbEntity
     Task<Result<IEnumerable<T>>> GetAll(CancellationToken ct);
 
     /// <summary>
-    /// Retrieves all entities from the database sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
+    /// Retrieves all entities from the database sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. Not recommended.
     /// </summary>
     /// <remarks>This might be a resource intensive operation and can lead to an <see cref="OutOfMemoryException"/>.</remarks>
     /// <param name="sortingQuery">The sorting query to use.</param>
@@ -175,41 +176,42 @@ public interface IRepository<T> where T : DbEntity
     /// Updates a single entity from the database.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
-    /// <param name="entity">The updated entity.</param>
+    /// <param name="id">The id of the entity to update.</param>
+    /// <param name="updateFunc">A function that descries the updates that need to be aplied to the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// The updated entity or <br/>
+    /// A successful <see cref="Result"/> or <br/>
     /// An <see cref="Errors.UpdateOperationFailedError"/> if update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<T>> Update(T entity, CancellationToken ct);
+    Task<Result> Update(Guid id, Func<SetPropertyCalls<T>, SetPropertyCalls<T>> updateFunc, CancellationToken ct);
 
     /// <summary>
     /// Updates multiple entities from the database.
     /// If one update fails, the operation will continue and the updated entities will be returned.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be update manually.</remarks>
-    /// <param name="entities">The entities to update.</param>
+    /// <param name="idToUpdateMap">A map from an entity id to function that descries the updates that need to be aplied to the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
     /// The number of updated entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> Update(IEnumerable<T> entities, CancellationToken ct);
+    Task<Result<int>> Update(IDictionary<Guid, Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> idToUpdateMap, CancellationToken ct);
 
     /// <summary>
     /// Updates multiple entities from the database. Will fail and rollback if one update fails.
     /// If one update fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be update manually.</remarks>
-    /// <param name="entities">The entities to update.</param>
+    /// <param name="idToUpdateMap">A map from an entity id to function that descries the updates that need to be aplied to the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
     /// The number of updated entities or <br/>
     /// An <see cref="Errors.BulkUpdateOperationFailedError"/> if one update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> UpdateAtomic(IEnumerable<T> entities, CancellationToken ct);
+    Task<Result<int>> UpdateAtomic(IDictionary<Guid, Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> idToUpdateMap, CancellationToken ct);
 
     /// <summary>
     /// Soft deletes a single entity from the database based on id.
