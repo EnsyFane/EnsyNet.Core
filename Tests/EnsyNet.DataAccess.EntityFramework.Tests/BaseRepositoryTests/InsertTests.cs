@@ -53,7 +53,7 @@ public class InsertTests
         insertResult.HasError.Should().BeFalse();
         var entity = insertResult.Data!;
         entity.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
-        entity.UpdatedAt.Should().BeNull();
+        entity.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
         entity.DeletedAt.Should().BeNull();
     }
 
@@ -110,7 +110,7 @@ public class InsertTests
         foreach (var entity in entities)
         {
             entity.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
-            entity.UpdatedAt.Should().BeNull();
+            entity.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
             entity.DeletedAt.Should().BeNull();
         }
     }
@@ -166,7 +166,7 @@ public class InsertTests
         foreach (var entity in entities)
         {
             entity.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
-            entity.UpdatedAt.Should().BeNull();
+            entity.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
             entity.DeletedAt.Should().BeNull();
         }
     }
@@ -190,7 +190,7 @@ public class InsertTests
     {
         actualEntity.Id.Should().NotBe(Guid.Empty);
         actualEntity.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
-        actualEntity.UpdatedAt.Should().BeNull();
+        actualEntity.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
         actualEntity.DeletedAt.Should().BeNull();
         actualEntity.StringField.Should().Be(expectedEntity.StringField);
         actualEntity.IntField.Should().Be(expectedEntity.IntField);

@@ -1,6 +1,9 @@
 ﻿using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Models;
+
 using Microsoft.EntityFrameworkCore.Query;
+
+using System.Linq.Expressions;
 
 namespace EnsyNet.DataAccess.Abstractions.Interfaces;
 
@@ -32,7 +35,7 @@ public interface IRepository<T> where T : DbEntity
     /// An <see cref="Errors.EntityNotFoundError{T}"/> if no entity was found or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<T>> GetByExpression(Func<T, bool> filter, CancellationToken ct);
+    Task<Result<T>> GetByExpression(Expression<Func<T, bool>> filter, CancellationToken ct);
 
     /// <summary>
     /// Retrieves all entities from the database. Not recommended.
@@ -55,7 +58,7 @@ public interface IRepository<T> where T : DbEntity
     /// The entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<IEnumerable<T>>> GetAll<TKey>(SortingQuery<T, TKey> sortingQuery, CancellationToken ct);
+    Task<Result<IEnumerable<T>>> GetAll(SortingQuery<T> sortingQuery, CancellationToken ct);
 
     /// <summary>
     /// Retrieves entities from the database paginated based on the provided <see cref="PaginationQuery"/>. 
@@ -79,7 +82,7 @@ public interface IRepository<T> where T : DbEntity
     /// The entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<IEnumerable<T>>> GetMany<TKey>(PaginationQuery paginationQuery, SortingQuery<T, TKey> sortingQuery, CancellationToken ct);
+    Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct);
 
     /// <summary>
     /// Retrieves entities from the database based on the provided filter. 
@@ -91,7 +94,7 @@ public interface IRepository<T> where T : DbEntity
     /// The found entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<IEnumerable<T>>> GetManyByExpression(Func<T, bool> filter, CancellationToken ct);
+    Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, CancellationToken ct);
 
     /// <summary>
     /// Retrieves entities from the database based on the provided filter and paginated based on the provided <see cref="PaginationQuery"/>. 
@@ -104,7 +107,7 @@ public interface IRepository<T> where T : DbEntity
     /// The found entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<IEnumerable<T>>> GetManyByExpression(Func<T, bool> filter, PaginationQuery paginationQuery, CancellationToken ct);
+    Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, CancellationToken ct);
 
     /// <summary>
     /// Retrieves entities from the database based on the provided filter and sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
@@ -116,7 +119,7 @@ public interface IRepository<T> where T : DbEntity
     /// The found entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<IEnumerable<T>>> GetManyByExpression<TKey>(Func<T, bool> filter, SortingQuery<T, TKey> sortingQuery, CancellationToken ct);
+    Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, SortingQuery<T> sortingQuery, CancellationToken ct);
 
     /// <summary>
     /// Retrieves entities from the database based on the provided filter, paginated based on the provided <see cref="PaginationQuery"/> 
@@ -130,7 +133,7 @@ public interface IRepository<T> where T : DbEntity
     /// The found entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<IEnumerable<T>>> GetManyByExpression<TKey>(Func<T, bool> filter, PaginationQuery paginationQuery, SortingQuery<T, TKey> sortingQuery, CancellationToken ct);
+    Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct);
 
     /// <summary>
     /// Inserts a single entity into the database.
@@ -247,7 +250,7 @@ public interface IRepository<T> where T : DbEntity
     /// The number of soft deleted entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> SoftDelete(Func<T, bool> filter, CancellationToken ct);
+    Task<Result<int>> SoftDelete(Expression<Func<T, bool>> filter, CancellationToken ct);
 
     /// <summary>
     /// Soft delete multiple entities from the database based on ids. Will fail and rollback if one soft delete fails.
@@ -273,7 +276,7 @@ public interface IRepository<T> where T : DbEntity
     /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if one soft delete fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> SoftDeleteAtomic(Func<T, bool> filter, CancellationToken ct);
+    Task<Result<int>> SoftDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct);
 
     /// <summary>
     /// Hard deletes a single entity from the database based on id.
@@ -309,7 +312,7 @@ public interface IRepository<T> where T : DbEntity
     /// The number of hard deleted entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> HardDelete(Func<T, bool> filter, CancellationToken ct);
+    Task<Result<int>> HardDelete(Expression<Func<T, bool>> filter, CancellationToken ct);
 
     /// <summary>
     /// Hard delete multiple entities from the database based on ids. Will fail and rollback if one hard delete fails.
@@ -335,5 +338,5 @@ public interface IRepository<T> where T : DbEntity
     /// An <see cref="Errors.BulkDeleteOperationFailedError"/> if one hard delete fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> HardDeleteAtomic(Func<T, bool> filter, CancellationToken ct);
+    Task<Result<int>> HardDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct);
 }

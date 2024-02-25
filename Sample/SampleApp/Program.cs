@@ -2,6 +2,7 @@
 using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
+
 using Microsoft.EntityFrameworkCore.Query;
 
 var r = Result.Ok();
@@ -12,9 +13,8 @@ var cts = new CancellationTokenSource();
 
 var entity = new TestEntity();
 var entities = new List<TestEntity> { entity };
-var filter = (TestEntity e) => e.UpdatedAt != null;
 var pagination = new PaginationQuery() { Skip = 0, Take = 100 };
-var sorting = new SortingQuery<TestEntity, Guid>()
+var sorting = new SortingQuery<TestEntity>()
 {
     IsAscending = true,
     SortFieldSelector = e => e.Id
@@ -22,25 +22,25 @@ var sorting = new SortingQuery<TestEntity, Guid>()
 
 IRepository<TestEntity> repository = null!;
 await repository.GetById(Guid.NewGuid(), cts.Token);
-await repository.GetByExpression(filter, cts.Token);
+await repository.GetByExpression(e => e.UpdatedAt != null, cts.Token);
 await repository.GetAll(cts.Token);
 await repository.GetAll(sorting, cts.Token);
 await repository.GetMany(pagination, cts.Token);
 await repository.GetMany(pagination, sorting, cts.Token);
-await repository.GetManyByExpression(filter, cts.Token);
-await repository.GetManyByExpression(filter, pagination, cts.Token);
-await repository.GetManyByExpression(filter, sorting, cts.Token);
-await repository.GetManyByExpression(filter, pagination, sorting, cts.Token);
+await repository.GetManyByExpression(e => e.UpdatedAt != null, cts.Token);
+await repository.GetManyByExpression(e => e.UpdatedAt != null, pagination, cts.Token);
+await repository.GetManyByExpression(e => e.UpdatedAt != null, sorting, cts.Token);
+await repository.GetManyByExpression(e => e.UpdatedAt != null, pagination, sorting, cts.Token);
 await repository.Insert(entity, cts.Token);
 await repository.Insert(entities, cts.Token);
 await repository.Update(entity.Id, x => x.SetProperty(e => e.Name, "NewName"), cts.Token);
 await repository.Update(new Dictionary<Guid, Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>{ { entity.Id, x => x.SetProperty(e => e.Name, "NewName") } }, cts.Token);
 await repository.SoftDelete(Guid.NewGuid(), cts.Token);
 await repository.SoftDelete(new List<Guid> { Guid.NewGuid() }, cts.Token);
-await repository.SoftDelete(filter, cts.Token);
+await repository.SoftDelete(e => e.UpdatedAt != null, cts.Token);
 await repository.HardDelete(Guid.NewGuid(), cts.Token);
 await repository.HardDelete(new List<Guid> { Guid.NewGuid() }, cts.Token);
-await repository.HardDelete(filter, cts.Token);
+await repository.HardDelete(e => e.UpdatedAt != null, cts.Token);
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1050:Declare types in namespaces", Justification = "Sample code. Not production.")]
 public sealed record TestEntity : DbEntity
