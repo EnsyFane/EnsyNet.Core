@@ -5,3 +5,7 @@
 # Builds and debugging
 **/bin/**
 **/obj/**
+
+# Workflows
+nuget/
+test-results/
