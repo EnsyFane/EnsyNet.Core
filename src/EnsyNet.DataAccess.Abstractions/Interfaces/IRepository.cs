@@ -49,7 +49,7 @@ public interface IRepository<T> where T : DbEntity
     Task<Result<IEnumerable<T>>> GetAll(CancellationToken ct);
 
     /// <summary>
-    /// Retrieves all entities from the database sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. Not recommended.
+    /// Retrieves all entities from the database sorted based on the provided <see cref="SortingQuery{T}"/>. Not recommended.
     /// </summary>
     /// <remarks>This might be a resource intensive operation and can lead to an <see cref="OutOfMemoryException"/>.</remarks>
     /// <param name="sortingQuery">The sorting query to use.</param>
@@ -73,7 +73,7 @@ public interface IRepository<T> where T : DbEntity
     Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, CancellationToken ct);
 
     /// <summary>
-    /// Retrieves entities from the database paginated based on the provided <see cref="PaginationQuery"/> and sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
+    /// Retrieves entities from the database paginated based on the provided <see cref="PaginationQuery"/> and sorted based on the provided <see cref="SortingQuery{T}"/>. 
     /// </summary>
     /// <param name="paginationQuery">The pagination query to use.</param>
     /// <param name="sortingQuery">The sorting query to use.</param>
@@ -110,7 +110,7 @@ public interface IRepository<T> where T : DbEntity
     Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, CancellationToken ct);
 
     /// <summary>
-    /// Retrieves entities from the database based on the provided filter and sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
+    /// Retrieves entities from the database based on the provided filter and sorted based on the provided <see cref="SortingQuery{T}"/>. 
     /// </summary>
     /// <param name="filter">The filter to use.</param>
     /// <param name="sortingQuery">The sorting query to use.</param>
@@ -123,7 +123,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Retrieves entities from the database based on the provided filter, paginated based on the provided <see cref="PaginationQuery"/> 
-    /// and sorted based on the provided <see cref="SortingQuery{T, TKey}"/>. 
+    /// and sorted based on the provided <see cref="SortingQuery{T}"/>. 
     /// </summary>
     /// <param name="filter">The filter to use.</param>
     /// <param name="paginationQuery">The pagination query to use.</param>
