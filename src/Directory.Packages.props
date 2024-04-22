@@ -16,6 +16,9 @@
     <PackageProjectUrl>https://github.com/EnsyFane/EnsyNet.Core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/EnsyFane/EnsyNet.Core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- <PackageReadMeUrl>https://raw.githubusercontent.com/EnsyFane/EnsyNet.Core/main/README.md</PackageReadMeUrl> -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,6 +42,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="$(SolutionDir)/../LICENSE.txt" Pack="true" PackagePath=""/>
+    <None Include="$(SolutionDir)/../README.md" Pack="true" PackagePath=""/>
+
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.1" />
