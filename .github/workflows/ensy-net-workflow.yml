@@ -84,5 +84,6 @@ jobs:
         working-directory: ./src
 
       - name: Push package
-        run: dotnet nuget push .\packed\EnsyNet.Core\*$version.nupkg --api-key ${{ secrets.NUGET_API_KEY }}
+        shell: pwsh
+        run: dotnet nuget push ./packed/EnsyNet.Core/*$version.nupkg --api-key ${{ secrets.NUGET_API_KEY }}
         working-directory: ./src
