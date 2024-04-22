@@ -71,7 +71,6 @@ jobs:
 
       - name: Set NuGet version
         shell: pwsh
-        id: nugetVersionSetter
         run: ./infra/scripts/get-nuget-version.ps1 ${{ inputs.nugetVersionOverwrite }}
 
       - name: Setup .NET Core 8.0.x
@@ -80,7 +79,8 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Create package
-        run: dotnet pack EnsyNet.sln -c Release -o ./packed/EnsyNet.Core /p:Version=${{ steps.nugetVersionSetter.outputs.nuget_version }}
+        shell: pwsh
+        run: dotnet pack EnsyNet.sln -c Release -o ./packed/EnsyNet.Core /p:Version=$env:nuget_version
         working-directory: ./src
 
       - name: Push package
