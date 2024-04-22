@@ -9,3 +9,6 @@
 # Workflows
 nuget/
 test-results/
+
+# Nuget Packages
+**/packed/**
