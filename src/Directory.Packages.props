@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- <PackageReadMeUrl>https://raw.githubusercontent.com/EnsyFane/EnsyNet.Core/main/README.md</PackageReadMeUrl> -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
