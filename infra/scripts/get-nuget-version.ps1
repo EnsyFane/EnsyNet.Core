@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$nugetVersionOverride,
     [Parameter(Mandatory=$true)]
-    [string]$isPullRequest
+    [string]$isMain
 )
 
 if ($nugetVersionOverride) {
@@ -19,10 +19,10 @@ if ($nugetVersionOverride) {
     $baseVersion = $xml.Project.PropertyGroup.Version | Out-String
     $baseVersion = $baseVersion.Trim()
     $date = [DateTime]::UtcNow.ToString('yyMMdd.HHmmss').Trim()
-    if ($isPullRequest -eq 'true') {
-        $version = "$baseVersion-dev.$date"
-    } else {
+    if ($isMain -eq 'true') {
         $version = "$baseVersion-main.$date"
+    } else {
+        $version = "$baseVersion-dev.$date"
     }
 }
 
