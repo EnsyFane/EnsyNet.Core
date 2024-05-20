@@ -21,7 +21,7 @@ jobs:
       - name: Get version from name
         id: nuget_version
         run: |
-          title = '${{ github.event.release.name }}'
+          #title = '${{ github.event.release.name }}'
           title = 'v0.0.4'
           regex = '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
 
