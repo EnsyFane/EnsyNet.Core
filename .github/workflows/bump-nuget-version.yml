@@ -25,7 +25,7 @@ jobs:
           title='v0.0.'
           regex='.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
 
-          [[ $title =~ $regex ]] || echo "No version could be found in release title."
+          [[ $title =~ $regex ]] || { echo "No version could be found in release title." && exit 1 }
 
           version=${BASH_REMATCH[1]}
 
