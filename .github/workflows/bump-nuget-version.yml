@@ -18,8 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore solution
+      - name: Get version from name
         shell: pwsh
-        run: echo 'Name ${{ github.event.release.name }} Description ${{ github.event.release.body }}'
+        run: |
+          '${{ github.event.release.name }}' -match '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
+          'v0.0.4' -match '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
+          echo $Matches.1
 
       
