@@ -25,9 +25,12 @@ jobs:
           title='v0.0.'
           regex='.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
 
-          [[ $title =~ $regex ]] || { echo "No version could be found in release title." && exit 1 }
+          [[ $title =~ $regex ]] || echo "No version could be found in release title."
 
           version=${BASH_REMATCH[1]}
+          if [[ -z $version ]]; then 
+            exit 1
+          fi
 
           echo "Found version: $version"
           echo "nuget_version=$version" >> "$GITHUB_ENV"
