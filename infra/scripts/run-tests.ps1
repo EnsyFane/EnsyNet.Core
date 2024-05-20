@@ -31,5 +31,5 @@ ThrowOnError "Failed to run tests"
 ./nuget/jetbrains.dotcover.commandlinetools.linux-x64/2023.3.3/tools/dotCover.sh report --Source="./test-results/coverage.dcvr" --Output="./code-coverage/integration-tests/coverage.html" --ReportType="HTML" --SourcesSearchPaths="./src/EnsyNet." --ExcludeFileMasks="./src/Tests/**"
 ThrowOnError "Failed to generate code coverage report"
 
-dotnet sonarscanner end -o:"stefan-tataran" -k:"EnsyFane_EnsyNet.Core" -d:sonar.token="$env:SONAR_TOKEN"
+dotnet sonarscanner end -d:sonar.token="$env:SONAR_TOKEN"
 ThrowOnError "Failed to end Sonar Scanner session"
