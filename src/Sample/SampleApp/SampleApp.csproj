@@ -9,8 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\EnsyNet.Core\EnsyNet.Core.csproj" />
-    <ProjectReference Include="..\..\EnsyNet.DataAccess.Abstractions\EnsyNet.DataAccess.Abstractions.csproj" />
+    <PackageReference Include="EnsyNet.DataAccess.Abstractions" />
   </ItemGroup>
 
 </Project>
