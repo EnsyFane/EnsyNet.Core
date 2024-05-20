@@ -29,7 +29,7 @@ jobs:
 
           version=${BASH_REMATCH[1]}
           if [[ -z $variable ]] ; then 
-            echo Version not found in title
+            echo "Version not found in title"
             exit 1
           fi
 
