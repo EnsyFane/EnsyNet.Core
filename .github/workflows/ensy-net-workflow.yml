@@ -30,6 +30,12 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Setup Java 17.0 (Needed for Sonar)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17.0'
+
       - name: Restore solution
         run: dotnet restore
         working-directory: ./src
@@ -38,29 +44,15 @@ jobs:
         run: dotnet build --configuration Release --no-restore
         working-directory: ./src
 
+      - name: Install DotNet SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
       - name: Test solution
         working-directory: ./
         shell: pwsh
         run: ./infra/scripts/run-tests.ps1 -composeFile "docker-compose.data-access-tests.yml" -dbContainer "db"
-
-      - name: Generate coverage report 
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.2
-        with:
-          reports: ./test-results/coverage.xml
-          targetdir: ./test-results
-          reporttypes: MarkdownSummaryGithub;HtmlInline_AzurePipelines_Dark
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: CoverageReport
-          path: ./test-results/index.html
-
-      - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
-        with:
-          recreate: true
-          path: ./test-results/SummaryGithub.md
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   package:
     runs-on: ubuntu-latest

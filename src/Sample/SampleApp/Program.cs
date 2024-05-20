@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using EnsyNet.Core.Results;
+using EnsyNet.DataAccess.Abstractions.Errors;
 using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
 
@@ -7,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Query;
 
 var r = Result.Ok();
 Result<string> r2 = Result.Ok("Hello, World!");
+
+var rError = Result.FromError(new BulkDeleteOperationFailedError());
 
 Console.WriteLine(r2.Data);
 var cts = new CancellationTokenSource();
