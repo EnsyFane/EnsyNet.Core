@@ -20,16 +20,19 @@ jobs:
 
       - name: Get version from name
         id: nuget_version
-        shell: pwsh
         run: |
-          '${{ github.event.release.name }}' -match '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
-          'v0.0.4' -match '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
-          $version = $Matches.1
+          title = '${{ github.event.release.name }}'
+          title = 'v0.0.4'
+          regex = '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
+
+          [[ $title =~ $regex ]]
+
+          version = ${BASH_REMATCH[1]}
+
           echo "Found version: $version"
-          "nuget_version=$version" >> "$GITHUB_ENV"
+          echo "nuget_version=$version" >> "$GITHUB_ENV"
 
       - name: Print name
-        shell: pwsh
         run: |
           echo "Found version: ${{ env.nuget_version }}"
 
