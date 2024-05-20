@@ -2,12 +2,12 @@ name: ensy-net-core
 run-name: Ensy Net Core - Packaging
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
   workflow_dispatch:
     inputs:
       nugetVersionOverwrite:

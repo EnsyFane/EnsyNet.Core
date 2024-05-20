@@ -18,6 +18,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - run: echo "Name: ${{ github.event.release.name }} Description: ${{ github.event.release.body }}"
+      - name: Restore solution
+        run: echo "Name: ${{ github.event.release.name }} Description: ${{ github.event.release.body }}"
+        working-directory: ./src
 
       
