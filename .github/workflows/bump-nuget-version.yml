@@ -31,8 +31,6 @@ jobs:
       - name: Print name
         shell: pwsh
         run: |
-          echo "Found version: $env:version"
-        env:
-          version: ${{ steps.nuget_version.outputs.nuget_version }}
+          echo "Found version: ${{ steps.nuget_version.outputs.nuget_version }}"
 
       
