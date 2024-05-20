@@ -22,7 +22,7 @@ jobs:
         id: nuget_version
         run: |
           #title='${{ github.event.release.name }}'
-          title='v0.0.'
+          title='v0.0.4'
           regex='.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
 
           [[ $title =~ $regex ]] || echo "No version could be found in release title."
