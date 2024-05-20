@@ -392,6 +392,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
+                .IgnoreQueryFilters()
                 .Where(x => x.Id == id)
                 .ExecuteDeleteAsync(ct);
 
@@ -409,6 +410,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
+                .IgnoreQueryFilters()
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteDeleteAsync(ct);
 
@@ -430,6 +432,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
+                .IgnoreQueryFilters()
                 .Where(filter)
                 .ExecuteDeleteAsync(ct);
 
@@ -447,6 +450,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
         {
             var affectedRows = await _dbSet
+                .IgnoreQueryFilters()
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteDeleteAsync(ct);
 
@@ -464,6 +468,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
         {
             var affectedRows = await _dbSet
+                .IgnoreQueryFilters()
                 .Where(filter)
                 .ExecuteDeleteAsync(ct);
 

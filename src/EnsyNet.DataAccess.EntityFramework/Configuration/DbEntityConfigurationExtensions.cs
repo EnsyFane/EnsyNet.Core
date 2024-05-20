@@ -35,5 +35,6 @@ public static class DbEntityConfigurationExtensions
 
         builder.Property(e => e.DeletedAt)
             .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+        builder.HasQueryFilter(e => e.DeletedAt == null);
     }
 }
