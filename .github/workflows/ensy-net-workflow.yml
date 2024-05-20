@@ -61,10 +61,10 @@ jobs:
           args: >
             -Dsonar.organization=stefan-tataran
             -Dsonar.projectKey=EnsyFane_EnsyNet.Core
-            -Dsonar.host.url="https://sonarcloud.io"
-            -Dsonar.cs.dotcover.reportsPaths="./code-coverage/integration-tests/coverage.html" 
-            -Dsonar.coverage.exclusions="**/Tests/**,**/Sample/**" 
-            -Dsonar.exclusions="**/.vs/**,**/*.sln"
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.cs.dotcover.reportsPaths=./code-coverage/integration-tests/coverage.html
+            -Dsonar.coverage.exclusions=**/Tests/**,**/Sample/**
+            -Dsonar.exclusions=**/.vs/**,**/*.sln
             -Dsonar.tests=src/Tests/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
