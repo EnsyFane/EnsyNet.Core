@@ -54,22 +54,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Sonar Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        with:
-          projectBaseDir: src
-          args: >
-            -Dsonar.organization=stefan-tataran
-            -Dsonar.projectKey=EnsyFane_EnsyNet.Core
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.cs.dotcover.reportsPaths=../code-coverage/integration-tests/coverage.html
-            -Dsonar.coverage.exclusions=**/Tests/**,**/Sample/**
-            -Dsonar.exclusions=**/.vs/**,**/*.sln
-            -Dsonar.tests=Tests/
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   package:
     runs-on: ubuntu-latest
     needs: [ci]
