@@ -26,7 +26,7 @@ jobs:
           'v0.0.4' -match '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
           $version = $Matches.1
           echo "Found version: $version"
-          echo "nuget_version=$version" >> "$GITHUB_ENV"
+          echo "nuget_version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Print name
         shell: pwsh
