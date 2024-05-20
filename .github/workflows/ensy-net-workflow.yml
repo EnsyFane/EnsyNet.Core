@@ -1,5 +1,5 @@
 name: ensy-net-core
-run-name: Ensy Net Core packaging
+run-name: Ensy Net Core - Packaging
 
 on:
   push:

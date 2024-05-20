@@ -1,0 +1,23 @@
+name: bump-nuget-version
+run-name: Ensy Net Core - Bump NuGet Version on Release
+
+on:
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [published]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - run: echo "Name: ${{ github.event.release.name }} Description: ${{ github.event.release.body }}"
+
+      
