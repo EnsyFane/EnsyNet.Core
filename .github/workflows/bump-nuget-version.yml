@@ -23,12 +23,12 @@ jobs:
         run: |
           '${{ github.event.release.name }}' -match '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
           'v0.0.4' -match '.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
-          echo 'Found version: $Matches.1'
+          echo "Found version: $Matches.1"
           echo "NEW_NUGET_VERSION=$Matches.1" >> "$GITHUB_ENV"
 
       - name: Print name
         shell: pwsh
         run: |
-          echo 'Found version: $NEW_NUGET_VERSION'
+          echo "Found version: $NEW_NUGET_VERSION"
 
       
