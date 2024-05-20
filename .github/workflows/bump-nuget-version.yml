@@ -22,12 +22,17 @@ jobs:
         id: nuget_version
         run: |
           #title='${{ github.event.release.name }}'
-          title='v0.0.4'
+          title='v0.0.'
           regex='.*v([0-9]+\.[0-9]\.[0-9]+(-[0-9]+)?).*'
 
           [[ $title =~ $regex ]]
 
           version=${BASH_REMATCH[1]}
+          if [[ -z $variable ]] ; then 
+            echo Version not found in title
+            exit 1
+          fi
+
 
           echo "Found version: $version"
           echo "nuget_version=$version" >> "$GITHUB_ENV"
