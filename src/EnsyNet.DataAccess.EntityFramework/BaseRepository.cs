@@ -2,17 +2,19 @@
 using EnsyNet.DataAccess.Abstractions.Errors;
 using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
+using EnsyNet.DataAccess.EntityFramework.Extensions;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace EnsyNet.DataAccess.EntityFramework;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Needed until we know what exceptions can be thrown by EF.")]
-public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
+public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEntity
 {
     private readonly DbContext _dbContext;
     private readonly DbSet<T> _dbSet;
@@ -212,7 +214,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 
     /// <inheritdoc />
     public async Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
-        => await ExecuteAtomicDbQuery<IEnumerable<T>, BulkInsertOperationFailedError>(async () =>
+        => await ExecuteAtomicDbQuery(async () =>
         {
             var insertedEntities = new List<T>();
             foreach (var entity in entities)
@@ -234,12 +236,14 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result> Update(Guid id, Func<SetPropertyCalls<T>, SetPropertyCalls<T>> updateFunc, CancellationToken ct)
+    public async Task<Result> Update(Guid id, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
+            var sanitizedUpdateExpression = SanitizeUpdateExpression(updateExpression);
+
             var affectedRows = await _dbSet
                 .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(x => updateFunc(x), ct);
+                .ExecuteUpdateAsync(sanitizedUpdateExpression, ct);
 
             if (affectedRows == 0)
             {
@@ -251,15 +255,17 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> Update(IDictionary<Guid, Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> idToUpdateMap, CancellationToken ct)
+    public async Task<Result<int>> Update(IDictionary<Guid, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>> idToUpdateMap, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach(var kvp in idToUpdateMap)
             {
+                var sanitizedUpdateExpression = SanitizeUpdateExpression(kvp.Value);
+
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)
-                    .ExecuteUpdateAsync(x => kvp.Value(x), ct);
+                    .ExecuteUpdateAsync(sanitizedUpdateExpression, ct);
                 totalAffectedRows += affectedRows;
             }
 
@@ -277,19 +283,21 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> idToUpdateMap, CancellationToken ct)
-        => await ExecuteAtomicDbQuery<int, BulkUpdateOperationFailedError>(async () =>
+    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>> idToUpdateMap, CancellationToken ct)
+        => await ExecuteAtomicDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach (var kvp in idToUpdateMap)
             {
+                var sanitizedUpdateExpression = SanitizeUpdateExpression(kvp.Value);
+
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)
-                    .ExecuteUpdateAsync(x => kvp.Value(x), ct);
+                    .ExecuteUpdateAsync(sanitizedUpdateExpression, ct);
                 totalAffectedRows += affectedRows;
             }
 
-            if (totalAffectedRows == 0)
+            if (totalAffectedRows != idToUpdateMap.Count)
             {
                 _logger.LogError("Entities of type {EntityType} were not updated.", typeof(T).Name);
                 return Result.FromError<int>(new BulkUpdateOperationFailedError());
@@ -355,7 +363,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 
     /// <inheritdoc />
     public async Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
+        => await ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => ids.Contains(x.Id))
@@ -372,7 +380,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 
     /// <inheritdoc />
     public async Task<Result<int>> SoftDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
+        => await ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(filter)
@@ -447,7 +455,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 
     /// <inheritdoc />
     public async Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
+        => await ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .IgnoreQueryFilters()
@@ -465,7 +473,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 
     /// <inheritdoc />
     public async Task<Result<int>> HardDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteAtomicDbQuery<int, BulkDeleteOperationFailedError>(async () =>
+        => await ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .IgnoreQueryFilters()
@@ -505,6 +513,11 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             _logger.LogError("Error while saving changes to the database for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
             return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
         }
+        catch (Exception e) when (InvalidUpdateExpressionExceptionMessageRegex().IsMatch(e.Message))
+        {
+            _logger.LogError("Invalid update expression when updating entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new InvalidUpdateEntityExpressionError());
+        }
         catch (Exception e)
         {
             _logger.LogError("Error while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
@@ -512,7 +525,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
         }
     }
 
-    protected async Task<Result<TResult>> ExecuteAtomicDbQuery<TResult, TError>(Func<Task<Result<TResult>>> func, CancellationToken ct) where TError : Error, new()
+    protected async Task<Result<TResult>> ExecuteAtomicDbQuery<TResult>(Func<Task<Result<TResult>>> func, CancellationToken ct)
     {
         try
         {
@@ -522,7 +535,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             if (result.HasError)
             {
                 await transaction.RollbackAsync(ct);
-                return Result.FromError<TResult>(new TError());
+                return Result.FromError<TResult>(result.Error!);
             }
             await transaction.CommitAsync(ct);
 
@@ -534,4 +547,12 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             throw;
         }
     }
+
+    protected Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> SanitizeUpdateExpression(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression)
+        => updateExpression.AddExpression(x => x.SetProperty(t => t.UpdatedAt, DateTime.UtcNow))
+            .AddExpression(x => x.SetProperty(t => t.CreatedAt, t => t.CreatedAt))
+            .AddExpression(x => x.SetProperty(t => t.DeletedAt, (DateTime?)null));
+
+    [GeneratedRegex(@"The column name \'.*\' is specified more than once in .*")]
+    private static partial Regex InvalidUpdateExpressionExceptionMessageRegex();
 }
