@@ -13,6 +13,10 @@ using System.Text.RegularExpressions;
 
 namespace EnsyNet.DataAccess.EntityFramework;
 
+/// <summary>
+/// Base repository class for CRUD operations.
+/// </summary>
+/// <typeparam name="T">The type of the entity that this repository operates on.</typeparam>
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Needed until we know what exceptions can be thrown by EF.")]
 public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEntity
 {
@@ -510,17 +514,17 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }
         catch (DbUpdateException e)
         {
-            _logger.LogError("Error while saving changes to the database for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            _logger.LogError(e, "Error while saving changes to the database for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
             return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
         }
         catch (Exception e) when (InvalidUpdateExpressionExceptionMessageRegex().IsMatch(e.Message))
         {
-            _logger.LogError("Invalid update expression when updating entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            _logger.LogError(e, "Invalid update expression when updating entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
             return Result.FromError<TResult>(new InvalidUpdateEntityExpressionError());
         }
         catch (Exception e)
         {
-            _logger.LogError("Error while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            _logger.LogError(e, "Error while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
             return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
         }
     }

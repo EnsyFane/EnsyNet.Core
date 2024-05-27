@@ -6,8 +6,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EnsyNet.DataAccess.EntityFramework.Configuration;
 
+/// <summary>
+/// Extension methods for configuring <see cref="DbEntity"/> properties.
+/// </summary>
 public static class DbEntityConfigurationExtensions
 {
+    /// <summary>
+    /// Configures the base properties of a <see cref="DbEntity"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the entity to configure.</typeparam>
+    /// <param name="builder">The <see cref="EntityTypeBuilder{T}"/> to use for configuring the entity.</param>
     public static void ConfigureBaseProperties<T>(this EntityTypeBuilder<T> builder) where T : DbEntity
     {
         builder.HasKey(e => e.Id);
