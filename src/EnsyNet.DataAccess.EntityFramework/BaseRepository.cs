@@ -345,7 +345,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
             else if (affectedRows != ids.Count())
@@ -366,7 +366,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -383,7 +383,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -400,7 +400,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -436,7 +436,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
             else if (affectedRows != ids.Count())
@@ -458,7 +458,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -476,7 +476,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -494,7 +494,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -593,6 +593,9 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
             return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
         }
     }
+
+    private const string ENTITIES_NOT_SOFT_DELETED_ERROR = "Entities of type {EntityType} were not soft deleted.";
+    private const string ENTITIES_NOT_HARD_DELETED_ERROR = "Entities of type {EntityType} were not hard deleted.";
 
     [GeneratedRegex(@"The column name \'.*\' is specified more than once in .*")]
     private static partial Regex InvalidUpdateExpressionExceptionMessageRegex();
