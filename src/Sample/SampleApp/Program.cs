@@ -1,10 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
-using EnsyNet.Core.Results;
+﻿using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Errors;
 using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
 
 using Microsoft.EntityFrameworkCore.Query;
+
+using System.Linq.Expressions;
 
 var r = Result.Ok();
 Result<string> r2 = Result.Ok("Hello, World!");
@@ -37,7 +38,7 @@ await repository.GetManyByExpression(e => e.UpdatedAt != null, pagination, sorti
 await repository.Insert(entity, cts.Token);
 await repository.Insert(entities, cts.Token);
 await repository.Update(entity.Id, x => x.SetProperty(e => e.Name, "NewName"), cts.Token);
-await repository.Update(new Dictionary<Guid, Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>{ { entity.Id, x => x.SetProperty(e => e.Name, "NewName") } }, cts.Token);
+await repository.Update(new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>{ { entity.Id, x => x.SetProperty(e => e.Name, "NewName") } }, cts.Token);
 await repository.SoftDelete(Guid.NewGuid(), cts.Token);
 await repository.SoftDelete(new List<Guid> { Guid.NewGuid() }, cts.Token);
 await repository.SoftDelete(e => e.UpdatedAt != null, cts.Token);

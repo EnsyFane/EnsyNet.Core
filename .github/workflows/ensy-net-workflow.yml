@@ -79,3 +79,4 @@ jobs:
         shell: pwsh
         run: dotnet nuget push ./packed/EnsyNet.Core/*$version.nupkg --api-key ${{ secrets.NUGET_API_KEY }}
         working-directory: ./src
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
