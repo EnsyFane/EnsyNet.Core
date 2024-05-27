@@ -5,8 +5,20 @@
 /// </summary>
 public abstract record Error
 {
+    /// <summary>
+    /// The error code for the error.
+    /// </summary>
+    /// <remarks>Usually in the format "[ShortErrorCode]".</remarks>
     public string ErrorCode { get; init; }
+
+    /// <summary>
+    /// The exception that caused the error. (If applicable)
+    /// </summary>
     public Exception? Exception { get; init; }
+
+    /// <summary>
+    /// A description of the error.
+    /// </summary>
     public string ErrorMessage { get; init; } = string.Empty;
 
     protected Error(string errorCode)

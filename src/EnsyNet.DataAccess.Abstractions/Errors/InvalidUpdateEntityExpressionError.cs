@@ -8,6 +8,9 @@ namespace EnsyNet.DataAccess.Abstractions.Errors;
 /// </summary>
 public sealed record InvalidUpdateEntityExpressionError : Error
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InvalidUpdateEntityExpressionError"/> class.
+    /// </summary>
     public InvalidUpdateEntityExpressionError() : base(ErrorCodes.INVALID_UPDATE_ENTITY_EXPRESSION_ERROR)
     {
     }

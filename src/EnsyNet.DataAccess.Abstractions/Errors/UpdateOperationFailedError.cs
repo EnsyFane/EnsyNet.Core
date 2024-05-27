@@ -7,6 +7,9 @@ namespace EnsyNet.DataAccess.Abstractions.Errors;
 /// </summary>
 public sealed record UpdateOperationFailedError : Error
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UpdateOperationFailedError"/> class.
+    /// </summary>
     public UpdateOperationFailedError() : base(ErrorCodes.UPDATE_OPERATION_FAILED_ERROR)
     {
     }
