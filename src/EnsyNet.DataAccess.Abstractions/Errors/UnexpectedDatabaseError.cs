@@ -11,7 +11,5 @@ public sealed record UnexpectedDatabaseError : Error
     /// Initializes a new instance of the <see cref="UnexpectedDatabaseError"/> class.
     /// </summary>
     /// <param name="exception">The exception thrown by the database.</param>
-    public UnexpectedDatabaseError(Exception exception) : base(ErrorCodes.UNEXPECTED_DATABASE_ERROR, exception)
-    {
-    }
+    public UnexpectedDatabaseError(Exception exception) : base(ErrorCodes.UNEXPECTED_DATABASE_ERROR, exception) { }
 }

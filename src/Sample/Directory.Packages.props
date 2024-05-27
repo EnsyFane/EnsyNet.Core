@@ -9,8 +9,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>0.0.5</Version>
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
+	<GenerateDocumentationFile>False</GenerateDocumentationFile>
     <Authors>EnsyFane</Authors>
     <Company>EnsyInc</Company>
     <PackageProjectUrl>https://github.com/EnsyFane/EnsyNet.Core</PackageProjectUrl>
@@ -33,11 +33,6 @@
 
   <ItemGroup>
     <PackageVersion Include="EnsyNet.DataAccess.Abstractions" Version="0.0.4" />
-    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.1" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2" />
   </ItemGroup>
   
 </Project>

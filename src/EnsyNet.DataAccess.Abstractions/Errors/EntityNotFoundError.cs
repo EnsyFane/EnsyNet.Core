@@ -10,9 +10,12 @@ namespace EnsyNet.DataAccess.Abstractions.Errors;
 public sealed record EntityNotFoundError<T> : Error where T : DbEntity
 {
     /// <summary>
+    /// Message template used to generate the <see cref="Error.ErrorMessage"/>.
+    /// </summary>
+    public const string MessageTemplate = "Entity of type {0} not found in the database.";
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="EntityNotFoundError{T}"/> class.
     /// </summary>
-    public EntityNotFoundError() : base(ErrorCodes.ENTITY_NOT_FOUND_ERROR, $"Entity of type {typeof(T).Name} not found in the database.")
-    {
-    }
+    public EntityNotFoundError() : base(ErrorCodes.ENTITY_NOT_FOUND_ERROR, string.Format(MessageTemplate, typeof(T).Name)) { }
 }
