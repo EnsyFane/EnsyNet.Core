@@ -1,4 +1,5 @@
-﻿using EnsyNet.Core.Results;
+﻿using EnsyNet.Core.Errors;
+using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Errors;
 using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
@@ -24,6 +25,13 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
     private readonly DbSet<T> _dbSet;
     private readonly ILogger _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BaseRepository{T}"/> class.
+    /// </summary>
+    /// <param name="dbContext">The <see cref="DbContext"/> to be used by the repository.</param>
+    /// <param name="dbSet">The entity set that the repository will operate on.</param>
+    /// <param name="logger">Logger instance to be used by the repository to log errors and warnings.</param>
+    /// <exception cref="ArgumentNullException"></exception>
     protected BaseRepository(DbContext dbContext, DbSet<T> dbSet, ILogger logger)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -337,7 +345,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
             else if (affectedRows != ids.Count())
@@ -358,7 +366,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -375,7 +383,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -392,7 +400,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not soft deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_SOFT_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -428,7 +436,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
             else if (affectedRows != ids.Count())
@@ -450,7 +458,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -468,7 +476,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
@@ -486,14 +494,19 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             if (affectedRows == 0)
             {
-                _logger.LogError("Entities of type {EntityType} were not hard deleted.", typeof(T).Name);
+                _logger.LogError(ENTITIES_NOT_HARD_DELETED_ERROR, typeof(T).Name);
                 return Result.FromError<int>(new BulkDeleteOperationFailedError());
             }
 
             return Result.Ok(affectedRows);
         }, ct);
 
-    protected T SanitizeEntityForInsert(T entity)
+    /// <summary>
+    /// Method that can be used to sanitize an entity before inserting it into the database when not using a predefined Insert method.
+    /// </summary>
+    /// <param name="entity">The entity to be sanitized.</param>
+    /// <returns>A new <see cref="DbEntity"/> that has been sanitized, ready to be inserted in the database.</returns>
+    protected static T SanitizeEntityForInsert(T entity)
         => entity with
         {
             CreatedAt = DateTime.UtcNow,
@@ -501,6 +514,22 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
             DeletedAt = null,
         };
 
+    /// <summary>
+    /// Method that can be used to sanitize an update expression before updating an entity in the database when not using a predefined Update method.
+    /// </summary>
+    /// <param name="updateExpression">The expression to be sanitized.</param>
+    /// <returns>A new expression that has been sanitized, ready to be used to update a <see cref="DbEntity"/>.</returns>
+    protected Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> SanitizeUpdateExpression(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression)
+        => updateExpression.AddExpression(x => x.SetProperty(t => t.UpdatedAt, DateTime.UtcNow))
+            .AddExpression(x => x.SetProperty(t => t.CreatedAt, t => t.CreatedAt))
+            .AddExpression(x => x.SetProperty(t => t.DeletedAt, (DateTime?)null));
+
+    /// <summary>
+    /// Executes a database query and handles exceptions that can be thrown by Entity Framework.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the data to be returned.</typeparam>
+    /// <param name="func">The function to execute.</param>
+    /// <returns>The result of executing the query.</returns>
     protected async Task<Result<TResult>> ExecuteDbQuery<TResult>(Func<Task<Result<TResult>>> func)
     {
         try
@@ -509,8 +538,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }
         catch (OperationCanceledException e)
         {
-            _logger.LogWarning(e, "Operation was cancelled while executing db query for entity of type {EntityType}.", typeof(T).Name);
-            throw;
+            _logger.LogWarning(e, "Operation was canceled while executing db query for entity of type {EntityType}.", typeof(T).Name);
+            return Result.FromError<TResult>(new OperationCanceledError(e));
         }
         catch (DbUpdateException e)
         {
@@ -529,6 +558,14 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }
     }
 
+    /// <summary>
+    /// Executes a database query atomically and handles exceptions that can be thrown by Entity Framework.
+    /// </summary>
+    /// <remarks>If errors are returned by <paramref name="func"/> then the operation is rolled back.</remarks>
+    /// <typeparam name="TResult">The type of the data to be returned.</typeparam>
+    /// <param name="func">The function to execute.</param>
+    /// <param name="ct">The cancellation token to use for the operation.</param>
+    /// <returns>The result of executing the query.</returns>
     protected async Task<Result<TResult>> ExecuteAtomicDbQuery<TResult>(Func<Task<Result<TResult>>> func, CancellationToken ct)
     {
         try
@@ -545,17 +582,20 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
             return result;
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException e)
         {
-            _logger.LogWarning(ex, "Operation was cancelled while executing atomic db query for entity of type {EntityType}.", typeof(T).Name);
-            throw;
+            _logger.LogWarning(e, "Operation was cancelled while executing atomic db query for entity of type {EntityType}.", typeof(T).Name);
+            return Result.FromError<TResult>(new OperationCanceledError(e));
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error while executing atomic db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
         }
     }
 
-    protected Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> SanitizeUpdateExpression(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression)
-        => updateExpression.AddExpression(x => x.SetProperty(t => t.UpdatedAt, DateTime.UtcNow))
-            .AddExpression(x => x.SetProperty(t => t.CreatedAt, t => t.CreatedAt))
-            .AddExpression(x => x.SetProperty(t => t.DeletedAt, (DateTime?)null));
+    private const string ENTITIES_NOT_SOFT_DELETED_ERROR = "Entities of type {EntityType} were not soft deleted.";
+    private const string ENTITIES_NOT_HARD_DELETED_ERROR = "Entities of type {EntityType} were not hard deleted.";
 
     [GeneratedRegex(@"The column name \'.*\' is specified more than once in .*")]
     private static partial Regex InvalidUpdateExpressionExceptionMessageRegex();

@@ -12,6 +12,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.DataAccess.EntityFramework", "EnsyNet.DataAccess.EntityFramework\EnsyNet.DataAccess.EntityFramework.csproj", "{04F4F275-87FA-470C-A8FF-0C1C6D984F28}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{F0BECEE7-099E-4CB9-AA4A-E9C26465D21C}"
+	ProjectSection(SolutionItems) = preProject
+		Sample\Directory.Packages.props = Sample\Directory.Packages.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0AD7273B-9E32-4942-AE78-FA3413E6CFA5}"
 	ProjectSection(SolutionItems) = preProject
@@ -22,8 +25,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{66709935-F7E2-4ECC-85C1-A3BE6A900203}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\Directory.Packages.props = Tests\Directory.Packages.props
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnsyNet.DataAccess.EntityFramework.Tests", "Tests\EnsyNet.DataAccess.EntityFramework.Tests\EnsyNet.DataAccess.EntityFramework.Tests.csproj", "{2DFEFD37-481E-4BE0-B695-4022A24312F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.DataAccess.EntityFramework.Tests", "Tests\EnsyNet.DataAccess.EntityFramework.Tests\EnsyNet.DataAccess.EntityFramework.Tests.csproj", "{2DFEFD37-481E-4BE0-B695-4022A24312F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

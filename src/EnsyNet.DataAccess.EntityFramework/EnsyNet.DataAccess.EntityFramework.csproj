@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EnsyNet.Core\EnsyNet.Core.csproj" />
-    <ProjectReference Include="..\EnsyNet.DataAccess.Abstractions\EnsyNet.DataAccess.Abstractions.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\EnsyNet.Core\EnsyNet.Core.csproj" />
+		<ProjectReference Include="..\EnsyNet.DataAccess.Abstractions\EnsyNet.DataAccess.Abstractions.csproj" />
+	</ItemGroup>
 
 </Project>

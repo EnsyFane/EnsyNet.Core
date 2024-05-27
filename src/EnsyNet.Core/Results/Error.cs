@@ -21,11 +21,22 @@ public abstract record Error
     /// </summary>
     public string ErrorMessage { get; init; } = string.Empty;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Error"/> class.
+    /// </summary>
+    /// <param name="errorCode">The <see cref="ErrorCode"/> of the error.</param>
+    /// <exception cref="ArgumentNullException">If <paramref name="errorCode"/> is null.</exception>
     protected Error(string errorCode)
     {
         ErrorCode = errorCode ?? throw new ArgumentNullException(nameof(errorCode));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="errorCode">The <see cref="ErrorCode"/> of the error.</param>
+    /// <param name="exception">The <see cref="Exception"/> of the error.</param>
+    /// <exception cref="ArgumentNullException">If <paramref name="errorCode"/> or <paramref name="exception"/> is null.</exception>
     protected Error(string errorCode, Exception exception)
     {
         ErrorCode = errorCode ?? throw new ArgumentNullException(nameof(errorCode));
@@ -33,12 +44,25 @@ public abstract record Error
         ErrorMessage = exception.Message;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="errorCode">The <see cref="ErrorCode"/> of the error.</param>
+    /// <param name="errorMessage">The <see cref="ErrorMessage"/> of the error.</param>
+    /// <exception cref="ArgumentNullException">If <paramref name="errorCode"/> or <paramref name="errorMessage"/> is null.</exception>
     protected Error(string errorCode, string errorMessage)
     {
         ErrorCode = errorCode ?? throw new ArgumentNullException(nameof(errorCode));
         ErrorMessage = errorMessage ?? throw new ArgumentNullException(nameof(errorMessage));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="errorCode">The <see cref="ErrorCode"/> of the error.</param>
+    /// <param name="exception">The <see cref="Exception"/> of the error.</param>
+    /// <param name="errorMessage">The <see cref="ErrorMessage"/> of the error.</param>
+    /// <exception cref="ArgumentNullException">If <paramref name="errorCode"/>, <paramref name="exception"/> or <paramref name="errorMessage"/> is null.</exception>
     protected Error(string errorCode, Exception exception, string errorMessage)
     {
         ErrorCode = errorCode ?? throw new ArgumentNullException(nameof(errorCode));

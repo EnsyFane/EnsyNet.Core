@@ -19,7 +19,7 @@ public record Result
     /// </summary>
     public bool HasError => Error is not null;
     
-    protected Result() { }
+    internal Result() { }
 
     /// <summary>
     /// Gets a new <see cref="Result"/> instance with no errors.
@@ -59,6 +59,4 @@ public sealed record Result<T> : Result
     /// The data returned by the operation. (If applicable)
     /// </summary>
     public T? Data { get; init; }
-
-    internal Result() { }
 }
