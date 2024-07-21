@@ -63,7 +63,7 @@ jobs:
 
       - name: Set NuGet version
         shell: pwsh
-        run: ./infra/scripts/get-nuget-version.ps1 -nugetVersionOverride '${{ inputs.nugetVersionOverwrite }}' -isMain '${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}'
+        run: ./infra/scripts/get-nuget-version.ps1 -nugetVersionOverride '${{ inputs.nugetVersionOverwrite }}' -isMain '${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}' -slnDirectory ./src/Core
 
       - name: Setup .NET Core 8.0.x
         uses: actions/setup-dotnet@v1

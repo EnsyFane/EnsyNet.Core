@@ -2,7 +2,9 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$nugetVersionOverride,
     [Parameter(Mandatory=$true)]
-    [string]$isMain
+    [string]$isMain,
+    [Parameter(Mandatory=$true)]
+    [string]$slnDirectory
 )
 
 if ($nugetVersionOverride) {
@@ -15,7 +17,7 @@ if ($nugetVersionOverride) {
 
     $version = $nugetVersionOverride
 } else {
-    $xml = [Xml] (Get-Content ./src/Directory.Packages.props)
+    $xml = [Xml] (Get-Content $slnDirectory/Directory.Packages.props)
     $baseVersion = $xml.Project.PropertyGroup.Version | Out-String
     $baseVersion = $baseVersion.Trim()
     $date = [DateTime]::UtcNow.ToString('yyMMdd.HHmmss').Trim()
