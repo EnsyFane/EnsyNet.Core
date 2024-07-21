@@ -38,11 +38,11 @@ jobs:
 
       - name: Restore solution
         run: dotnet restore
-        working-directory: ./src
+        working-directory: ./src/Core
 
       - name: Build solution
         run: dotnet build --configuration Release --no-restore
-        working-directory: ./src
+        working-directory: ./src/Core
 
       - name: Install DotNet SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
@@ -50,7 +50,7 @@ jobs:
       - name: Test solution
         working-directory: ./
         shell: pwsh
-        run: ./infra/scripts/run-tests.ps1 -composeFile "docker-compose.data-access-tests.yml" -dbContainer "db"
+        run: ./infra/scripts/run-tests.ps1 -composeFile "./src/Core/docker-compose.data-access-tests.yml" -dbContainer "db"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -73,10 +73,10 @@ jobs:
       - name: Create package
         shell: pwsh
         run: dotnet pack EnsyNet.sln -c Release -o ./packed/EnsyNet.Core /p:Version=$env:nuget_version
-        working-directory: ./src
+        working-directory: ./src/Core
 
       - name: Push package
         shell: pwsh
         run: dotnet nuget push ./packed/EnsyNet.Core/*$version.nupkg --api-key ${{ secrets.NUGET_API_KEY }}
-        working-directory: ./src
+        working-directory: ./src/Core
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
