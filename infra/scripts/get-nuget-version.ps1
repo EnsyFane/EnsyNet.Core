@@ -20,7 +20,7 @@ if ($nugetVersionOverride) {
     $xml = [Xml] (Get-Content $slnDirectory/Directory.Packages.props)
     $baseVersion = $xml.Project.PropertyGroup.Version | Out-String
     $baseVersion = $baseVersion.Trim()
-    $date = [DateTime]::UtcNow.ToString('yyMMdd.HHmmss').Trim()
+    $date = "$([DateTime]::UtcNow.ToString('yyMMdd').TrimStart('0')).$([DateTime]::UtcNow.ToString('HHmmss').TrimStart('0'))"
     if ($isMain -eq 'true') {
         $version = "$baseVersion-main.$date"
     } else {
