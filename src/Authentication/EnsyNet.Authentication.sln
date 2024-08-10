@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication.Api", "Authentication.Api\Authentication.Api.csproj", "{B9F9ECEA-65D2-40FA-8DDC-D1E19B0E7E0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.Authentication.Api", "EnsyNet.Authentication.Api\EnsyNet.Authentication.Api.csproj", "{B9F9ECEA-65D2-40FA-8DDC-D1E19B0E7E0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication.Core", "Authentication.Core\Authentication.Core.csproj", "{BCCF2183-516A-4B6B-8995-7E4275D4DBDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.Authentication.Core", "EnsyNet.Authentication.Core\EnsyNet.Authentication.Core.csproj", "{BCCF2183-516A-4B6B-8995-7E4275D4DBDA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{715C6826-D3E7-42C4-ACDC-F104B221133E}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,6 +13,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Packages.props = Directory.Packages.props
 		NuGet.Config = NuGet.Config
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.Authentication.Authenticators.Abstractions", "EnsyNet.Authentication.Authenticators.Abstractions\EnsyNet.Authentication.Authenticators.Abstractions.csproj", "{763CB4D1-64A9-4DA7-AD5C-8BF5E063DE69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authenticators", "Authenticators", "{779E5CE6-F26B-4BD8-91FD-FA22ED99807D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnsyNet.Authentication.Authenticators.BasicAuth", "EnsyNet.Authentication.Authenticators.BasicAuth\EnsyNet.Authentication.Authenticators.BasicAuth.csproj", "{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,9 +34,21 @@ Global
 		{BCCF2183-516A-4B6B-8995-7E4275D4DBDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCCF2183-516A-4B6B-8995-7E4275D4DBDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCCF2183-516A-4B6B-8995-7E4275D4DBDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{763CB4D1-64A9-4DA7-AD5C-8BF5E063DE69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{763CB4D1-64A9-4DA7-AD5C-8BF5E063DE69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{763CB4D1-64A9-4DA7-AD5C-8BF5E063DE69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{763CB4D1-64A9-4DA7-AD5C-8BF5E063DE69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{763CB4D1-64A9-4DA7-AD5C-8BF5E063DE69} = {779E5CE6-F26B-4BD8-91FD-FA22ED99807D}
+		{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC} = {779E5CE6-F26B-4BD8-91FD-FA22ED99807D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B811F904-6ED7-4ACB-A030-1B02E359415D}

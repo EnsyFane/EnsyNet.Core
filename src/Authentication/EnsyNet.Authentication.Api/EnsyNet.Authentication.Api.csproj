@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EnsyNet.Authentication.Authenticators.Abstractions\EnsyNet.Authentication.Authenticators.Abstractions.csproj" />
+    <ProjectReference Include="..\EnsyNet.Authentication.Core\EnsyNet.Authentication.Core.csproj" />
+  </ItemGroup>
+
+</Project>
