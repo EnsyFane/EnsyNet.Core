@@ -12,7 +12,7 @@ function ThrowOnError($message) {
     }
 }
 
-docker-compose -f "$composeFile" up --build --detach "$dbContainer"
+docker compose -f "$composeFile" up --build --detach "$dbContainer"
 ThrowOnError "Failed to start the database container"
 
 New-Item -ItemType Directory -Force -Path ./test-results
