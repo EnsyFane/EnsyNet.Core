@@ -6,4 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EnsyNet.Authentication.Core\EnsyNet.Authentication.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
 </Project>
