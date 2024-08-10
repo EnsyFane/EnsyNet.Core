@@ -1,5 +1,4 @@
-﻿using EnsyNet.Authentication.Authenticators.Abstractions.Models;
-using EnsyNet.Authentication.Authenticators.Abstractions.Attributes;
+﻿using EnsyNet.Authentication.Authenticators.Abstractions.Attributes;
 using EnsyNet.Authentication.Authenticators.Abstractions.Authenticators;
 using EnsyNet.Authentication.Core.Configuration;
 
@@ -50,11 +49,9 @@ public sealed class AuthenticationMiddleware : IMiddleware
         }
 
         var isAuthenticated = await authenticator.Authenticate(context);
-        if (!isAuthenticated)
+        if (isAuthenticated)
         {
-            throw new AuthenticationException();
+            await next(context);
         }
-
-        await next(context);
     }
 }

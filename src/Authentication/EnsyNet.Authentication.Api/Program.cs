@@ -1,6 +1,8 @@
 using EnsyNet.Authentication.Api;
 using EnsyNet.Authentication.Authenticators.Abstractions;
+using EnsyNet.Authentication.Authenticators.BasicAuth;
 using EnsyNet.Authentication.Core.Configuration;
+
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,8 @@ builder.Services
 
 builder.Services
     .AddServerConfig(builder.Configuration)
-    .AddEnsyNetAuthentication(builder.Configuration);
+    .AddEnsyNetAuthentication(builder.Configuration)
+    .AddBasicAuth();
 
 var app = builder.Build();
 

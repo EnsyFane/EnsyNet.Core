@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EnsyNet.Authentication.Authenticators.Abstractions\EnsyNet.Authentication.Authenticators.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

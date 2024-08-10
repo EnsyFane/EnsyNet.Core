@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EnsyNet.Authentication.Authenticators.Abstractions\EnsyNet.Authentication.Authenticators.Abstractions.csproj" />
+    <ProjectReference Include="..\EnsyNet.Authentication.Authenticators.BasicAuth\EnsyNet.Authentication.Authenticators.BasicAuth.csproj" />
     <ProjectReference Include="..\EnsyNet.Authentication.Core\EnsyNet.Authentication.Core.csproj" />
   </ItemGroup>
 

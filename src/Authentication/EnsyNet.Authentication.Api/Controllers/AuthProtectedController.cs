@@ -12,6 +12,6 @@ public class AuthProtectedController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok("Hello from protected controller!");
+        return Ok();
     }
 }
