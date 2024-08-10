@@ -1,0 +1,36 @@
+<Project>
+  
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>0.0.5</Version>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Authors>EnsyFane</Authors>
+    <Company>EnsyInc</Company>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <AssemblyVersion>0.0.5</AssemblyVersion>
+	  <WarningLevel>9999</WarningLevel>
+	  <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+	  <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+	  <NoWarn>1701;1702;CS1591</NoWarn>
+  </PropertyGroup>
+	
+  <ItemGroup>
+    <None Include="$(SolutionDir)/../../LICENSE.txt" Pack="true" PackagePath="" />
+    <None Include="$(SolutionDir)/../../README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+  
+</Project>
