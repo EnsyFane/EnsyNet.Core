@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="EnsyNet.DataAccess.EntityFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EnsyNet.Authentication.Core\EnsyNet.Authentication.Core.csproj" />
+  </ItemGroup>
+</Project>

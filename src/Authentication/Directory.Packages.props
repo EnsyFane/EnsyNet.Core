@@ -26,6 +26,8 @@
     <None Include="$(SolutionDir)/../../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
+    <PackageVersion Include="EnsyNet.DataAccess.Abstractions" Version="0.0.4" />
+    <PackageVersion Include="EnsyNet.DataAccess.EntityFramework" Version="0.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />

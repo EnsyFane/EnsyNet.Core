@@ -18,9 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.Authentication.Auth
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authenticators", "Authenticators", "{779E5CE6-F26B-4BD8-91FD-FA22ED99807D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnsyNet.Authentication.Authenticators.BasicAuth", "EnsyNet.Authentication.Authenticators.BasicAuth\EnsyNet.Authentication.Authenticators.BasicAuth.csproj", "{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.Authentication.Authenticators.BasicAuth", "EnsyNet.Authentication.Authenticators.BasicAuth\EnsyNet.Authentication.Authenticators.BasicAuth.csproj", "{C17089A7-671B-4E3D-9D46-CEE39F8DE0BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnsyNet.Authentication.Services", "EnsyNet.Authentication.Services\EnsyNet.Authentication.Services.csproj", "{7D24E336-F92A-4231-82B2-E3B1B64AD9F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.Authentication.Internals", "EnsyNet.Authentication.Internals\EnsyNet.Authentication.Internals.csproj", "{7D24E336-F92A-4231-82B2-E3B1B64AD9F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
