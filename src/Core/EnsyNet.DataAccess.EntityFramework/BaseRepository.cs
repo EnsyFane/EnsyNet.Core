@@ -248,10 +248,11 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result> Update(Guid id, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression, CancellationToken ct)
+    public async Task<Result> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            var sanitizedUpdateExpression = SanitizeUpdateExpression(updateExpression);
+            var transformedExpression = updateExpression.GetSetPropertyCallsExpression();
+            var sanitizedUpdateExpression = SanitizeUpdateExpression(transformedExpression);
 
             var affectedRows = await _dbSet
                 .Where(x => x.Id == id)
@@ -267,13 +268,14 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> Update(IDictionary<Guid, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>> idToUpdateMap, CancellationToken ct)
+    public async Task<Result<int>> Update(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach(var kvp in idToUpdateMap)
             {
-                var sanitizedUpdateExpression = SanitizeUpdateExpression(kvp.Value);
+                var transformedExpression = kvp.Value.GetSetPropertyCallsExpression();
+                var sanitizedUpdateExpression = SanitizeUpdateExpression(transformedExpression);
 
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)
@@ -295,13 +297,14 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>> idToUpdateMap, CancellationToken ct)
+    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
         => await ExecuteAtomicDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach (var kvp in idToUpdateMap)
             {
-                var sanitizedUpdateExpression = SanitizeUpdateExpression(kvp.Value);
+                var transformedExpression = kvp.Value.GetSetPropertyCallsExpression();
+                var sanitizedUpdateExpression = SanitizeUpdateExpression(transformedExpression);
 
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)

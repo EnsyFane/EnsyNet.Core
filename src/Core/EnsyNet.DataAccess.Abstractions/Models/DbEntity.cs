@@ -28,4 +28,6 @@ public abstract record DbEntity
     /// </summary>
     /// <remarks>If null then entity is not soft deleted yet.</remarks>
     public DateTime? DeletedAt { get; init; }
+
+    public string? Test { get; init; }
 }

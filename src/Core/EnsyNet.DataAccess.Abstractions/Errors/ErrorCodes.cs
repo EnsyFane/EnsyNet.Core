@@ -49,4 +49,6 @@ public static class ErrorCodes
     /// Error code for when an update operation fails due to an invalid expression provided by the user.
     /// </summary>
     public const string INVALID_UPDATE_ENTITY_EXPRESSION_ERROR = "[InvalidUpdateEntityExpressionError]";
+
+    public const string NO_ENTITY_UPDATES_FOUND = "[NoEntityUpdatesFound]";
 }

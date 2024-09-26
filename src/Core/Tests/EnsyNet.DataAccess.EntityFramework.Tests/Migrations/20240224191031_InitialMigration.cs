@@ -16,6 +16,7 @@ public partial class InitialMigration : Migration
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWSEQUENTIALID()"),
                 StringField = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Test = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 IntField = table.Column<int>(type: "int", nullable: false),
                 BoolField = table.Column<bool>(type: "bit", nullable: false),
                 FloatField = table.Column<float>(type: "real", nullable: false),

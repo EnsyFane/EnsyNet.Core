@@ -1,8 +1,6 @@
 ﻿using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Models;
 
-using Microsoft.EntityFrameworkCore.Query;
-
 using System.Linq.Expressions;
 
 namespace EnsyNet.DataAccess.Abstractions.Interfaces;
@@ -188,7 +186,7 @@ public interface IRepository<T> where T : DbEntity
     /// An <see cref="Errors.UpdateOperationFailedError"/> if update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result> Update(Guid id, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression, CancellationToken ct);
+    Task<Result> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct);
 
     /// <summary>
     /// Updates multiple entities from the database.
@@ -202,7 +200,7 @@ public interface IRepository<T> where T : DbEntity
     /// An <see cref="Errors.InvalidUpdateEntityExpressionError"/> if the user provided an invalid update expression or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> Update(IDictionary<Guid, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>> idToUpdateMap, CancellationToken ct);
+    Task<Result<int>> Update(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct);
 
     /// <summary>
     /// Updates multiple entities from the database. Will fail and rollback if one update fails.
@@ -217,7 +215,7 @@ public interface IRepository<T> where T : DbEntity
     /// An <see cref="Errors.BulkUpdateOperationFailedError"/> if one update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>> idToUpdateMap, CancellationToken ct);
+    Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct);
 
     /// <summary>
     /// Soft deletes a single entity from the database based on id.
