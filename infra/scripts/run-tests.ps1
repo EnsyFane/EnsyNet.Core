@@ -19,7 +19,7 @@ New-Item -ItemType Directory -Force -Path ./test-results
 
 dotnet add ./src/Core/Tests/EnsyNet.DataAccess.EntityFramework.Tests package JetBrains.dotCover.CommandLineTools.linux-x64 --version 2023.3.3 --package-directory ./nuget
 
-dotnet sonarscanner begin -o:"stefan-tataran" -k:"EnsyFane_EnsyNet.Core" -d:sonar.host.url="https://sonarcloud.io" -d:sonar.token="$env:SONAR_TOKEN" -d:sonar.cs.dotcover.reportsPaths="./code-coverage/integration-tests/coverage.html" -d:sonar.coverage.exclusions="**/Tests/**,**/Sample/**,**code-coverage/**" -d:sonar.exclusions="**/.vs/**,**/*.sln"
+dotnet sonarscanner begin -o:"stefan-tataran" -k:"EnsyFane_EnsyNet.Core" -d:sonar.host.url="https://sonarcloud.io" -d:sonar.token="$env:SONAR_TOKEN" -d:sonar.cs.dotcover.reportsPaths="./code-coverage/integration-tests/coverage.html" -d:sonar.coverage.exclusions="**/Tests/**,**/Sample/**,**/code-coverage/**" -d:sonar.exclusions="**/.vs/**,**/*.sln"
 ThrowOnError "Failed to start Sonar Scanner session"
 
 dotnet build ./src/Core/Tests/EnsyNet.DataAccess.EntityFramework.Tests/EnsyNet.DataAccess.EntityFramework.Tests.csproj
