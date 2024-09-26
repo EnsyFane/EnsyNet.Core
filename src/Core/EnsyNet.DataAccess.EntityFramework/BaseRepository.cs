@@ -519,7 +519,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
     /// </summary>
     /// <param name="updateExpression">The expression to be sanitized.</param>
     /// <returns>A new expression that has been sanitized, ready to be used to update a <see cref="DbEntity"/>.</returns>
-    protected Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> SanitizeUpdateExpression(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression)
+    protected static Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> SanitizeUpdateExpression(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression)
         => updateExpression.AddExpression(x => x.SetProperty(t => t.UpdatedAt, DateTime.UtcNow))
             .AddExpression(x => x.SetProperty(t => t.CreatedAt, t => t.CreatedAt))
             .AddExpression(x => x.SetProperty(t => t.DeletedAt, (DateTime?)null));
