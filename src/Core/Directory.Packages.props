@@ -1,16 +1,14 @@
 <Project>
-  
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-  
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>0.0.5</Version>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Authors>EnsyFane</Authors>
     <Company>EnsyInc</Company>
     <PackageProjectUrl>https://github.com/EnsyFane/EnsyNet.Core</PackageProjectUrl>
@@ -20,23 +18,23 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <AssemblyVersion>0.0.5</AssemblyVersion>
-	<WarningLevel>9999</WarningLevel>
-	<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<NoWarn>1701;1702;CS1591</NoWarn>
+    <WarningLevel>9999</WarningLevel>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <NoWarn>1701;1702;CS1591</NoWarn>
   </PropertyGroup>
-	
   <ItemGroup>
     <None Include="$(SolutionDir)/../../LICENSE.txt" Pack="true" PackagePath="" />
     <None Include="$(SolutionDir)/../../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
   </ItemGroup>
-  
 </Project>

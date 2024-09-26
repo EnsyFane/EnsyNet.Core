@@ -19,6 +19,7 @@ public static class ErrorCodes
     /// Error code for when a bulk delete operation fails.
     /// </summary>
     public const string BULK_DELETE_OPERATION_FAILED_ERROR = "[BulkDeleteOperationFailedError]";
+
     /// <summary>
     /// Error code for when a delete operation fails.
     /// </summary>
@@ -28,6 +29,7 @@ public static class ErrorCodes
     /// Error code for when a bulk insert operation fails.
     /// </summary>
     public const string BULK_INSERT_OPERATION_FAILED_ERROR = "[BulkInsertOperationFailedError]";
+
     /// <summary>
     /// Error code for when an insert operation fails.
     /// </summary>
@@ -37,10 +39,12 @@ public static class ErrorCodes
     /// Error code for when a bulk update operation fails.
     /// </summary>
     public const string BULK_UPDATE_OPERATION_FAILED_ERROR = "[BulkUpdateOperationFailedError]";
+
     /// <summary>
     /// Error code for when an update operation fails.
     /// </summary>
     public const string UPDATE_OPERATION_FAILED_ERROR = "[UpdateOperationFailedError]";
+
     /// <summary>
     /// Error code for when an update operation fails due to an invalid expression provided by the user.
     /// </summary>

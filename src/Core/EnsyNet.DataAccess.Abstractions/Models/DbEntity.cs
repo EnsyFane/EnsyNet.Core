@@ -12,14 +12,17 @@ public abstract record DbEntity
     /// The id of the entity.
     /// </summary>
     public Guid Id { get; init; }
+
     /// <summary>
     /// The date and time the entity was created.
     /// </summary>
     public DateTime CreatedAt { get; init; }
+
     /// <summary>
     /// The date and time the entity was last updated.
     /// </summary>
     public DateTime? UpdatedAt { get; init; }
+
     /// <summary>
     /// The date and time the entity was soft deleted.
     /// </summary>

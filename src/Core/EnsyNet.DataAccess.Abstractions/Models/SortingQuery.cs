@@ -12,6 +12,7 @@ public sealed record SortingQuery<T> where T : DbEntity
     /// Expression that selects the field to sort by.
     /// </summary>
     public required Expression<Func<T, object>> SortFieldSelector { get; init; }
+
     /// <summary>
     /// Whether the sorting is ascending or descending.
     /// </summary>
