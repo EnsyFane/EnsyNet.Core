@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       nugetVersionOverwrite:
-        description: "Nuget version to publish to NuGet"
+        description: "NuGet version to publish"
         required: true
         type: string
 
@@ -63,7 +63,13 @@ jobs:
 
       - name: Set NuGet version
         shell: pwsh
-        run: ./infra/scripts/get-nuget-version.ps1 -nugetVersionOverride '${{ inputs.nugetVersionOverwrite }}' -isMain '${{ github.ref == 'refs/heads/main' && 'true' || 'false' }}' -slnDirectory ./src/Core
+        run: ./infra/scripts/get-nuget-version.ps1 -nugetVersionOverride '${{ inputs.nugetVersionOverwrite }}' -isMain 'true' -slnDirectory ./src/Core
+        if: !startsWith(github.event.ref, 'refs/tags/') || github.event_name != 'pull_request'
+
+      - name: Set NuGet version - tags
+        shell: pwsh
+        run: ./infra/scripts/get-nuget-version.ps1 -nugetVersionOverride '${{ inputs.nugetVersionOverwrite }}' -isMain 'true' -slnDirectory ./src/Core
+        if: startsWith(github.event.ref, 'refs/tags/v') && github.event_name != 'pull_request'
 
       - name: Setup .NET Core 8.0.x
         uses: actions/setup-dotnet@v1
