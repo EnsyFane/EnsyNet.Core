@@ -25,7 +25,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            (EntityUpdates<TestEntity> x) => x.AddUpdate(e => e.StringField, _ => "Updated")
+            x => x.AddUpdate(e => e.StringField, _ => "Updated")
                 .AddUpdate(e => e.IntField, _ => 2602)
                 .AddUpdate(e => e.BoolField, _ => false)
                 .AddUpdate(e => e.FloatField, _ => 42.42f)
@@ -66,7 +66,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            (EntityUpdates<TestEntity> x) => x.AddUpdate(e => e.GuidField, e => e.Id),
+            x => x.AddUpdate(e => e.GuidField, e => e.Id),
             default);
 
         updateResult.AssertNoError();
@@ -79,7 +79,7 @@ public class UpdateTests : RepositoryTestsBase
     {
         var updateResult = await Repository.Update(
             Guid.NewGuid(),
-            (EntityUpdates<TestEntity> x) => x.AddUpdate(e => e.StringField, _ => "Updated"),
+            x => x.AddUpdate(e => e.StringField, _ => "Updated"),
             default);
 
         updateResult.HasError.Should().BeTrue();
@@ -95,7 +95,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            (EntityUpdates<TestEntity> x) => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)),
+            x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)),
             default);
 
         updateResult.HasError.Should().BeTrue();
@@ -111,7 +111,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            (EntityUpdates<TestEntity> x) => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)),
+            x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)),
             default);
 
         updateResult.HasError.Should().BeTrue();
@@ -127,7 +127,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            (EntityUpdates<TestEntity> x) => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)),
+            x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)),
             default);
 
         updateResult.HasError.Should().BeTrue();

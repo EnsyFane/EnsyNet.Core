@@ -65,9 +65,6 @@ namespace EnsyNet.DataAccess.EntityFramework.Tests.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Test")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<TimeSpan>("TimeSpanField")
                         .HasColumnType("time");
 
