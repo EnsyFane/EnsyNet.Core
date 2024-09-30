@@ -1,10 +1,9 @@
 ﻿using EnsyNet.DataAccess.Abstractions.Errors;
+using EnsyNet.DataAccess.Abstractions.Models;
 using EnsyNet.DataAccess.EntityFramework.Tests.Helpers;
 using EnsyNet.DataAccess.EntityFramework.Tests.Models;
 
 using FluentAssertions;
-
-using Microsoft.EntityFrameworkCore.Query;
 
 using System.Linq.Expressions;
 
@@ -26,15 +25,15 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            x => x.SetProperty(e => e.StringField, "Updated")
-                .SetProperty(e => e.IntField, 2602)
-                .SetProperty(e => e.BoolField, false)
-                .SetProperty(e => e.FloatField, 42.42f)
-                .SetProperty(e => e.DoubleField, 42.42d)
-                .SetProperty(e => e.DecimalField, 42.42m)
-                .SetProperty(e => e.DateTimeField, dateTime)
-                .SetProperty(e => e.TimeSpanField, TimeSpan.FromSeconds(5))
-                .SetProperty(e => e.GuidField, guid),
+            x => x.AddUpdate(e => e.StringField, _ => "Updated")
+                .AddUpdate(e => e.IntField, _ => 2602)
+                .AddUpdate(e => e.BoolField, _ => false)
+                .AddUpdate(e => e.FloatField, _ => 42.42f)
+                .AddUpdate(e => e.DoubleField, _ => 42.42d)
+                .AddUpdate(e => e.DecimalField, _ => 42.42m)
+                .AddUpdate(e => e.DateTimeField, _ => dateTime)
+                .AddUpdate(e => e.TimeSpanField, _ => TimeSpan.FromSeconds(5))
+                .AddUpdate(e => e.GuidField, _ => guid),
             default);
 
         updateResult.AssertNoError();
@@ -56,11 +55,31 @@ public class UpdateTests : RepositoryTestsBase
     }
 
     [Fact]
+    public async Task ExistingEntity_UpdateByIdUsingOtherProperty_EntityUpdated()
+    {
+        var insertResult = await Repository.Insert(ValidEntity, default);
+        insertResult.AssertNoError();
+        var entity = insertResult.Data!;
+        var dateTime = DateTime.UtcNow.AddDays(5);
+        var guid = Guid.NewGuid();
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
+        var updateResult = await Repository.Update(
+            entity.Id,
+            x => x.AddUpdate(e => e.GuidField, e => e.Id),
+            default);
+
+        updateResult.AssertNoError();
+        var updatedEntity = await Repository.GetById(entity.Id, default);
+        updatedEntity.Data!.GuidField.Should().Be(entity.Id);
+    }
+
+    [Fact]
     public async Task NoEntity_UpdateById_ReturnsError()
     {
         var updateResult = await Repository.Update(
             Guid.NewGuid(),
-            x => x.SetProperty(e => e.StringField, "Updated"),
+            x => x.AddUpdate(e => e.StringField, _ => "Updated"),
             default);
 
         updateResult.HasError.Should().BeTrue();
@@ -76,7 +95,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            x => x.SetProperty(e => e.CreatedAt, DateTime.UtcNow.AddDays(-5)),
+            x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)),
             default);
 
         updateResult.HasError.Should().BeTrue();
@@ -92,7 +111,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            x => x.SetProperty(e => e.UpdatedAt, DateTime.UtcNow.AddDays(-5)),
+            x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)),
             default);
 
         updateResult.HasError.Should().BeTrue();
@@ -108,7 +127,7 @@ public class UpdateTests : RepositoryTestsBase
 
         var updateResult = await Repository.Update(
             entity.Id,
-            x => x.SetProperty(e => e.DeletedAt, DateTime.UtcNow.AddDays(-5)),
+            x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)),
             default);
 
         updateResult.HasError.Should().BeTrue();
@@ -125,10 +144,10 @@ public class UpdateTests : RepositoryTestsBase
         await Task.Delay(TimeSpan.FromSeconds(1));
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult1.Data!.Id, x => x.SetProperty(e => e.StringField, "Updated1") },
-                { insertResult2.Data!.Id, x => x.SetProperty(e => e.StringField, "Updated2") }
+                { insertResult1.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
+                { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") }
             }, default);
 
         updateResult.AssertNoError();
@@ -146,9 +165,9 @@ public class UpdateTests : RepositoryTestsBase
     public async Task NoEntities_UpdateMultiple_ReturnsError()
     {
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { Guid.NewGuid(), x => x.SetProperty(e => e.StringField, "Updated") },
+                { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated") },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -162,10 +181,10 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.StringField, "Updated1") },
-                { Guid.NewGuid(), x => x.SetProperty(e => e.StringField, "Updated2") },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
+                { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
             }, default);
 
         updateResult.AssertNoError();
@@ -180,9 +199,9 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.CreatedAt, DateTime.UtcNow.AddDays(-5)) },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -196,9 +215,9 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.UpdatedAt, DateTime.UtcNow.AddDays(-5)) },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -212,9 +231,9 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.DeletedAt, DateTime.UtcNow.AddDays(-5)) },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -231,10 +250,10 @@ public class UpdateTests : RepositoryTestsBase
         await Task.Delay(TimeSpan.FromSeconds(1));
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult1.Data!.Id, x => x.SetProperty(e => e.StringField, "Updated1") },
-                { insertResult2.Data!.Id, x => x.SetProperty(e => e.StringField, "Updated2") }
+                { insertResult1.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
+                { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") }
             }, default);
 
         updateResult.AssertNoError();
@@ -252,9 +271,9 @@ public class UpdateTests : RepositoryTestsBase
     public async Task NoEntities_UpdateAtomicMultiple_ReturnsError()
     {
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { Guid.NewGuid(), x => x.SetProperty(e => e.StringField, "Updated") },
+                { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated") },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -268,10 +287,10 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.StringField, "Updated1") },
-                { Guid.NewGuid(), x => x.SetProperty(e => e.StringField, "Updated2") },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
+                { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -287,9 +306,9 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.CreatedAt, DateTime.UtcNow.AddDays(-5)) },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -303,9 +322,9 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.UpdatedAt, DateTime.UtcNow.AddDays(-5)) },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
@@ -319,9 +338,9 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<SetPropertyCalls<TestEntity>, SetPropertyCalls<TestEntity>>>>()
+            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
-                { insertResult.Data!.Id, x => x.SetProperty(e => e.DeletedAt, DateTime.UtcNow.AddDays(-5)) },
+                { insertResult.Data!.Id, x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, default);
 
         updateResult.HasError.Should().BeTrue();
