@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$nugetVersionOverride,
     [Parameter(Mandatory=$true)]
-    [string]$isMain,
+    [string]$ref,
     [Parameter(Mandatory=$true)]
     [string]$slnDirectory
 )
@@ -16,12 +16,21 @@ if ($nugetVersionOverride) {
     }
 
     $version = $nugetVersionOverride
+} elseif ($ref.StartsWith("refs/tags/")) {
+    $tagRegex = '^refs/tags/v([0-9]+\.[0-9]+\.[0-9]+(-.{1,15})?)$'
+    Write-Host "Detected NuGet version from tag: $ref"
+
+    if ($ref -notmatch $tagRegex) {
+        Write-Error "NuGet tag version '$ref' is invalid. It needs to match the regex: $tagRegex."
+    }
+
+    $version = $Matches[1]
 } else {
     $xml = [Xml] (Get-Content $slnDirectory/Directory.Packages.props)
     $baseVersion = $xml.Project.PropertyGroup.Version | Out-String
     $baseVersion = $baseVersion.Trim()
     $date = "$([DateTime]::UtcNow.ToString('yyMMdd').TrimStart('0')).$([DateTime]::UtcNow.ToString('HHmmss').TrimStart('0'))"
-    if ($isMain -eq 'true') {
+    if ($ref -eq 'refs/heads/main') {
         $version = "$baseVersion-main.$date"
     } else {
         $version = "$baseVersion-dev.$date"
