@@ -1,16 +1,14 @@
 <Project>
-  
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-  
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>0.0.5</Version>
-	  <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
-	<GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <Authors>EnsyFane</Authors>
     <Company>EnsyInc</Company>
     <PackageProjectUrl>https://github.com/EnsyFane/EnsyNet.Core</PackageProjectUrl>
@@ -20,19 +18,16 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <AssemblyVersion>0.0.5</AssemblyVersion>
-	<WarningLevel>9999</WarningLevel>
-	<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-	<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-	<NoWarn>1701;1702;CS1591</NoWarn>
+    <WarningLevel>9999</WarningLevel>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <NoWarn>1701;1702;CS1591</NoWarn>
   </PropertyGroup>
-	
   <ItemGroup>
     <None Include="$(SolutionDir)/../LICENSE.txt" Pack="true" PackagePath="" />
     <None Include="$(SolutionDir)/../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageVersion Include="EnsyNet.DataAccess.Abstractions" Version="0.0.4" />
+    <PackageVersion Include="EnsyNet.DataAccess.Abstractions" Version="0.1.0" />
   </ItemGroup>
-  
 </Project>
