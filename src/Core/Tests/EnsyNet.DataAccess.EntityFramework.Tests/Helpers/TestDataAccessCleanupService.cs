@@ -13,7 +13,7 @@ internal sealed class TestDataAccessCleanupService : BaseDataAccessCleanupServic
 {
     public Expression<Func<TestEntity, bool>> EntityFilter { get; set; } = x => true;
 
-    public Func<TestEntity, Result> CanDeleteEntity { get; set; } = x => Result.Ok();
+    public Func<TestEntity, Result<bool>> CanDeleteEntity { get; set; } = x => Result.Ok(true);
 
     public TestDataAccessCleanupService(IRepository<TestEntity> repository, ILogger<BaseDataAccessCleanupService<TestEntity>> logger) : base(repository, logger) { }
 
@@ -22,6 +22,6 @@ internal sealed class TestDataAccessCleanupService : BaseDataAccessCleanupServic
         get => EntityFilter;
     }
 
-    protected override Task<Result> ExecuteBeforeDeletion(TestEntity entity, CancellationToken ct) 
+    protected override Task<Result<bool>> ExecuteBeforeDeletion(TestEntity entity, CancellationToken ct) 
         => Task.FromResult(CanDeleteEntity(entity));
 }

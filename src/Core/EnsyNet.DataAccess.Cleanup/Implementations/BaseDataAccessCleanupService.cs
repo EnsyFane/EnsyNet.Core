@@ -38,8 +38,8 @@ public class BaseDataAccessCleanupService<T> : IDataAccessCleanupService<T> wher
     /// <see cref="Result.Ok()"/> if the operation was successful and the entity can be deleted or <br/>
     /// A <see cref="Result"/> with an error if the operation failed and the entity should not be deleted."/>
     /// </returns>
-    protected virtual Task<Result> ExecuteBeforeDeletion(T entity, CancellationToken ct) 
-        => Task.FromResult(Result.Ok());
+    protected virtual Task<Result<bool>> ExecuteBeforeDeletion(T entity, CancellationToken ct) 
+        => Task.FromResult(Result.Ok(true));
 
     /// <inheritdoc />
     public virtual async Task<Result<int>> CleanDataAccess(DateTime cutoffDate, int batchCount, CancellationToken ct)
@@ -81,7 +81,7 @@ public class BaseDataAccessCleanupService<T> : IDataAccessCleanupService<T> wher
                     return new
                     {
                         Id = entity.Id,
-                        ShouldDeleted = true,
+                        ShouldDeleted = beforeDeletionResult.Data,
                     };
                 });
 
@@ -89,6 +89,11 @@ public class BaseDataAccessCleanupService<T> : IDataAccessCleanupService<T> wher
             .Where(x => x.ShouldDeleted)
             .Select(x => x.Id)
             .ToList();
+        if (entitiesThatCanBeDeleted.Count == 0)
+        {
+            _logger.LogInformation("No {EntityType}s to hard delete.", typeof(T).Name);
+            return Result.Ok(0);
+        }
 
         var hardDeleteResult = await _repository.HardDelete(entitiesThatCanBeDeleted, ct);
 
