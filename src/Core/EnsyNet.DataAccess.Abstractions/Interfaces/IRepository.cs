@@ -26,9 +26,9 @@ public interface IRepository<T> where T : DbEntity
     /// <summary>
     /// Retrieves the first entity from the database that matches the given <paramref name="filter"/>.
     /// </summary>
-    /// <returns>
     /// <param name="filter">The filter expression to be used for the database query.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
     /// The found entity or <br/>
     /// An <see cref="Errors.EntityNotFoundError{T}"/> if no entity was found or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
@@ -39,8 +39,8 @@ public interface IRepository<T> where T : DbEntity
     /// Retrieves all entities from the database. Not recommended.
     /// </summary>
     /// <remarks>This might be a resource intensive operation and can lead to an <see cref="OutOfMemoryException"/>.</remarks>
-    /// <returns>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
     /// The entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
@@ -132,6 +132,19 @@ public interface IRepository<T> where T : DbEntity
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
     Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct);
+
+    /// <summary>
+    /// Retrieves soft deleted entities from the database based on the provided filter and paginated based on the provided <see cref="PaginationQuery"/>.
+    /// </summary>
+    /// <param name="filter">The filter to use.</param>
+    /// <param name="paginationQuery">The pagination query to use.</param>
+    /// <param name="cutoffDate">Cutoff date for retrieving soft deleted entities. Only entities that have <see cref="DbEntity.DeletedAt"/> before this date will be retrieved.</param>
+    /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// The found soft deleted entities or <br/>
+    /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
+    /// </returns>
+    Task<Result<IEnumerable<T>>> GetSoftDeleted(Expression<Func<T, bool>> filter, DateTime cutoffDate, PaginationQuery paginationQuery, CancellationToken ct);
 
     /// <summary>
     /// Inserts a single entity into the database.

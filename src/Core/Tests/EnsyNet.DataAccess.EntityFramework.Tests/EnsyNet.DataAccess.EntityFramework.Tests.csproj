@@ -32,6 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\EnsyNet.DataAccess.Cleanup\EnsyNet.DataAccess.Cleanup.csproj" />
 		<ProjectReference Include="..\..\EnsyNet.DataAccess.EntityFramework\EnsyNet.DataAccess.EntityFramework.csproj" />
 	</ItemGroup>
 

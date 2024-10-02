@@ -78,6 +78,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         => await ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet.ToListAsync(ct);
+
             return Result.Ok<IEnumerable<T>>(entities);
         });
 
@@ -109,7 +110,6 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
     public async Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-
             var orderedEntities = sortingQuery.IsAscending
                 ? _dbSet.OrderBy(sortingQuery.SortFieldSelector)
                 : _dbSet.OrderByDescending(sortingQuery.SortFieldSelector);
@@ -171,6 +171,20 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
                 : _dbSet.OrderByDescending(sortingQuery.SortFieldSelector);
 
             var entities = await orderedEntities
+                .Where(filter)
+                .Skip(paginationQuery.Skip)
+                .Take(paginationQuery.Take)
+                .ToListAsync(ct);
+
+            return Result.Ok<IEnumerable<T>>(entities);
+        });
+
+    /// <inheritdoc />
+    public async Task<Result<IEnumerable<T>>> GetSoftDeleted(Expression<Func<T, bool>> filter, DateTime cutoffDate, PaginationQuery paginationQuery, CancellationToken ct)
+        => await ExecuteDbQuery(async () =>
+        {
+            var entities = await _dbSet.IgnoreQueryFilters()
+                .Where(e => e.DeletedAt.HasValue && e.DeletedAt < cutoffDate)
                 .Where(filter)
                 .Skip(paginationQuery.Skip)
                 .Take(paginationQuery.Take)

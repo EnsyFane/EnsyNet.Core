@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{66709935
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnsyNet.DataAccess.EntityFramework.Tests", "Tests\EnsyNet.DataAccess.EntityFramework.Tests\EnsyNet.DataAccess.EntityFramework.Tests.csproj", "{2DFEFD37-481E-4BE0-B695-4022A24312F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnsyNet.DataAccess.Cleanup", "EnsyNet.DataAccess.Cleanup\EnsyNet.DataAccess.Cleanup.csproj", "{81D23563-E2A7-41E4-91F5-D6BAE12B3B56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{2DFEFD37-481E-4BE0-B695-4022A24312F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DFEFD37-481E-4BE0-B695-4022A24312F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DFEFD37-481E-4BE0-B695-4022A24312F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81D23563-E2A7-41E4-91F5-D6BAE12B3B56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81D23563-E2A7-41E4-91F5-D6BAE12B3B56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81D23563-E2A7-41E4-91F5-D6BAE12B3B56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81D23563-E2A7-41E4-91F5-D6BAE12B3B56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
