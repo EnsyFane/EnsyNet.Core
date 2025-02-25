@@ -35,4 +35,8 @@
 		<ProjectReference Include="..\..\EnsyNet.DataAccess.EntityFramework\EnsyNet.DataAccess.EntityFramework.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="RepositoryTests\OneKeyPartitionedRepositoryTests\" />
+	</ItemGroup>
+
 </Project>

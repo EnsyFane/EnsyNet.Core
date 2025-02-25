@@ -3,5 +3,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\EnsyNet.Core\EnsyNet.Core.csproj" />
 	</ItemGroup>
-
+  
+  <ItemGroup>
+    <InternalsVisibleTo Include="EnsyNet.DataAccess.EntityFramework" />
+  </ItemGroup>
 </Project>

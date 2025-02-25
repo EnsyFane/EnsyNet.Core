@@ -181,12 +181,12 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="updateExpression">An expressionthat describes the updates that need to be aplied to the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// A successful <see cref="Result"/> or <br/>
+    /// The number of updated entities or <br/>
     /// An <see cref="Errors.InvalidUpdateEntityExpressionError"/> if the user provided an invalid update expression or <br/>
     /// An <see cref="Errors.UpdateOperationFailedError"/> if update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct);
+    Task<Result<int>> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct);
 
     /// <summary>
     /// Updates multiple entities from the database.
@@ -223,11 +223,11 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="id">The id of the entity to soft delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// A successful <see cref="Result"/> or <br/>
+    /// The number of soft deleted entities or <br/>
     /// An <see cref="Errors.DeleteOperationFailedError"/> if soft deleteion fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result> SoftDelete(Guid id, CancellationToken ct);
+    Task<Result<int>> SoftDelete(Guid id, CancellationToken ct);
 
     /// <summary>
     /// Soft delete multiple entities from the database based on ids.
@@ -285,11 +285,11 @@ public interface IRepository<T> where T : DbEntity
     /// <param name="id">The id of the entity to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
-    /// A successful <see cref="Result"/> or <br/>
+    /// The number of hard deleted entities or <br/>
     /// An <see cref="Errors.DeleteOperationFailedError"/> if hard deleteion fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
-    Task<Result> HardDelete(Guid id, CancellationToken ct);
+    Task<Result<int>> HardDelete(Guid id, CancellationToken ct);
 
     /// <summary>
     /// Hard delete multiple entities from the database based on ids.

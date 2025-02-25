@@ -2,14 +2,13 @@
 using EnsyNet.DataAccess.Abstractions.Models;
 using EnsyNet.DataAccess.EntityFramework.Tests.Helpers;
 using EnsyNet.DataAccess.EntityFramework.Tests.Models;
-
 using FluentAssertions;
 
 using System.Linq.Expressions;
 
 using Xunit;
 
-namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
+namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests.BaseRepositoryTests;
 
 public class UpdateTests : RepositoryTestsBase
 {

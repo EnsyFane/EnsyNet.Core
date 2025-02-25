@@ -40,8 +40,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
     }
 
     /// <inheritdoc />
-    public async Task<Result<T>> GetById(Guid id, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<T>> GetById(Guid id, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var entity = await _dbSet
                 .Where(x => x.Id == id)
@@ -57,8 +57,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<T>> GetByExpression(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<T>> GetByExpression(Expression<Func<T, bool>> filter, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var entity = await _dbSet
                 .Where(filter)
@@ -74,16 +74,16 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetAll(CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetAll(CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet.ToListAsync(ct);
             return Result.Ok<IEnumerable<T>>(entities);
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetAll(SortingQuery<T> sortingQuery, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetAll(SortingQuery<T> sortingQuery, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var entities = sortingQuery.IsAscending
                 ? await _dbSet.OrderBy(sortingQuery.SortFieldSelector).ToListAsync(ct)
@@ -93,8 +93,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet
                 .OrderBy(x => x.Id)
@@ -106,8 +106,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetMany(PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
 
             var orderedEntities = sortingQuery.IsAscending
@@ -123,8 +123,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet
                 .Where(filter)
@@ -134,8 +134,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var entities = await _dbSet
                 .Where(filter)
@@ -148,8 +148,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, SortingQuery<T> sortingQuery, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, SortingQuery<T> sortingQuery, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var orderedEntities = sortingQuery.IsAscending
                 ? _dbSet.OrderBy(sortingQuery.SortFieldSelector)
@@ -163,8 +163,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> GetManyByExpression(Expression<Func<T, bool>> filter, PaginationQuery paginationQuery, SortingQuery<T> sortingQuery, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var orderedEntities = sortingQuery.IsAscending
                 ? _dbSet.OrderBy(sortingQuery.SortFieldSelector)
@@ -180,8 +180,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<T>> Insert(T entity, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<T>> Insert(T entity, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var sanitizedEntity = SanitizeEntityForInsert(entity);
 
@@ -198,8 +198,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> Insert(IEnumerable<T> entities, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var insertedEntities = new List<T>();
             foreach(var entity in entities)
@@ -225,8 +225,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+    public Task<Result<IEnumerable<T>>> InsertAtomic(IEnumerable<T> entities, CancellationToken ct)
+        => ExecuteAtomicDbQuery(async () =>
         {
             var insertedEntities = new List<T>();
             foreach (var entity in entities)
@@ -248,8 +248,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var transformedExpression = updateExpression.GetSetPropertyCallsExpression();
             var sanitizedUpdateExpression = SanitizeUpdateExpression(transformedExpression);
@@ -268,8 +268,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> Update(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> Update(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach(var kvp in idToUpdateMap)
@@ -297,8 +297,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+    public Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
+        => ExecuteAtomicDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach (var kvp in idToUpdateMap)
@@ -322,8 +322,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result> SoftDelete(Guid id, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> SoftDelete(Guid id, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => x.Id == id)
@@ -339,8 +339,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> SoftDelete(IEnumerable<Guid> ids, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => ids.Contains(x.Id))
@@ -360,8 +360,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> SoftDelete(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> SoftDelete(Expression<Func<T, bool>> filter, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(filter)
@@ -377,8 +377,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+    public Task<Result<int>> SoftDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
+        => ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(x => ids.Contains(x.Id))
@@ -394,8 +394,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result<int>> SoftDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+    public Task<Result<int>> SoftDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct)
+        => ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .Where(filter)
@@ -411,8 +411,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result> HardDelete(Guid id, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> HardDelete(Guid id, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .IgnoreQueryFilters()
@@ -429,8 +429,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> HardDelete(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> HardDelete(IEnumerable<Guid> ids, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .IgnoreQueryFilters()
@@ -451,8 +451,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> HardDelete(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteDbQuery(async () =>
+    public Task<Result<int>> HardDelete(Expression<Func<T, bool>> filter, CancellationToken ct)
+        => ExecuteDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .IgnoreQueryFilters()
@@ -469,8 +469,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+    public Task<Result<int>> HardDeleteAtomic(IEnumerable<Guid> ids, CancellationToken ct)
+        => ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .IgnoreQueryFilters()
@@ -487,8 +487,8 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result<int>> HardDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct)
-        => await ExecuteAtomicDbQuery(async () =>
+    public Task<Result<int>> HardDeleteAtomic(Expression<Func<T, bool>> filter, CancellationToken ct)
+        => ExecuteAtomicDbQuery(async () =>
         {
             var affectedRows = await _dbSet
                 .IgnoreQueryFilters()

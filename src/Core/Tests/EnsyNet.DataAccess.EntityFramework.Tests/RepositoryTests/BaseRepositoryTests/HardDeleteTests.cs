@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Xunit;
 
-namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
+namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests.BaseRepositoryTests;
 
 public class HardDeleteTests : RepositoryTestsBase
 {

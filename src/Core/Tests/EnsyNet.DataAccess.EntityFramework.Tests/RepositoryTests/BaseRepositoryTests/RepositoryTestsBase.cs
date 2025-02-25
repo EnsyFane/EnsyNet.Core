@@ -1,9 +1,8 @@
 ﻿using EnsyNet.DataAccess.EntityFramework.Tests.Helpers;
 using EnsyNet.DataAccess.EntityFramework.Tests.Models;
-
 using FluentAssertions;
 
-namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
+namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests.BaseRepositoryTests;
 
 public abstract class RepositoryTestsBase : IDisposable
 {

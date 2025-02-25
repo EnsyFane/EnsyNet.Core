@@ -1,12 +1,11 @@
 ﻿using EnsyNet.DataAccess.Abstractions.Errors;
 using EnsyNet.DataAccess.Abstractions.Models;
 using EnsyNet.DataAccess.EntityFramework.Tests.Models;
-
 using FluentAssertions;
 
 using Xunit;
 
-namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
+namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests.BaseRepositoryTests;
 
 public class GetTests : RepositoryTestsBase
 {
