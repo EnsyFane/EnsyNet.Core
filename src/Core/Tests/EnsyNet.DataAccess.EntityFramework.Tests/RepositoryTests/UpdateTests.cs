@@ -16,7 +16,7 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateById_EntityUpdated()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
         var entity = insertResult.Data!;
         var dateTime = DateTime.UtcNow.AddDays(5);
@@ -34,11 +34,11 @@ public class UpdateTests : RepositoryTestsBase
                 .AddUpdate(e => e.DateTimeField, _ => dateTime)
                 .AddUpdate(e => e.TimeSpanField, _ => TimeSpan.FromSeconds(5))
                 .AddUpdate(e => e.GuidField, _ => guid),
-            default);
+            CancellationToken.None);
 
         updateResult.AssertNoError();
-        var updatedEntity = await Repository.GetById(entity.Id, default);
-        AssertEntity(updatedEntity.Data!, new TestEntity
+        var updatedEntity = await Repository.GetById(entity.Id, CancellationToken.None);
+        AssertEntity(updatedEntity.Data!, new()
         {
             StringField = "Updated",
             IntField = 2602,
@@ -57,20 +57,18 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateByIdUsingOtherProperty_EntityUpdated()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
         var entity = insertResult.Data!;
-        var dateTime = DateTime.UtcNow.AddDays(5);
-        var guid = Guid.NewGuid();
         await Task.Delay(TimeSpan.FromSeconds(1));
 
         var updateResult = await Repository.Update(
             entity.Id,
             x => x.AddUpdate(e => e.GuidField, e => e.Id),
-            default);
+            CancellationToken.None);
 
         updateResult.AssertNoError();
-        var updatedEntity = await Repository.GetById(entity.Id, default);
+        var updatedEntity = await Repository.GetById(entity.Id, CancellationToken.None);
         updatedEntity.Data!.GuidField.Should().Be(entity.Id);
     }
 
@@ -80,7 +78,7 @@ public class UpdateTests : RepositoryTestsBase
         var updateResult = await Repository.Update(
             Guid.NewGuid(),
             x => x.AddUpdate(e => e.StringField, _ => "Updated"),
-            default);
+            CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<UpdateOperationFailedError>();
@@ -89,14 +87,14 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateByIdCreatedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
         var entity = insertResult.Data!;
 
         var updateResult = await Repository.Update(
             entity.Id,
             x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)),
-            default);
+            CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
@@ -105,14 +103,14 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateByIdUpdatedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
         var entity = insertResult.Data!;
 
         var updateResult = await Repository.Update(
             entity.Id,
             x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)),
-            default);
+            CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
@@ -121,14 +119,14 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateByIdDeletedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
         var entity = insertResult.Data!;
 
         var updateResult = await Repository.Update(
             entity.Id,
             x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)),
-            default);
+            CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
@@ -137,9 +135,9 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntities_UpdateMultiple_EntitiesUpdated()
     {
-        var insertResult1 = await Repository.Insert(ValidEntity, default);
+        var insertResult1 = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult1.AssertNoError();
-        var insertResult2 = await Repository.Insert(ValidEntity, default);
+        var insertResult2 = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult2.AssertNoError();
         await Task.Delay(TimeSpan.FromSeconds(2));
 
@@ -147,15 +145,15 @@ public class UpdateTests : RepositoryTestsBase
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult1.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
-                { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") }
-            }, default);
+                { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
+            }, CancellationToken.None);
 
         updateResult.AssertNoError();
-        var updatedEntity1 = await Repository.GetById(insertResult1.Data!.Id, default);
+        var updatedEntity1 = await Repository.GetById(insertResult1.Data!.Id, CancellationToken.None);
         updatedEntity1.Data!.StringField.Should().Be("Updated1");
         updatedEntity1.Data!.UpdatedAt.Should().NotBeCloseTo(insertResult1.Data.UpdatedAt!.Value, TimeSpan.FromSeconds(0.5));
         updatedEntity1.Data!.UpdatedAt.Should().BeAfter(insertResult1.Data.UpdatedAt!.Value);
-        var updatedEntity2 = await Repository.GetById(insertResult2.Data!.Id, default);
+        var updatedEntity2 = await Repository.GetById(insertResult2.Data!.Id, CancellationToken.None);
         updatedEntity2.Data!.StringField.Should().Be("Updated2");
         updatedEntity2.Data!.UpdatedAt.Should().NotBeCloseTo(insertResult2.Data.UpdatedAt!.Value, TimeSpan.FromSeconds(0.5));
         updatedEntity2.Data!.UpdatedAt.Should().BeAfter(insertResult2.Data.UpdatedAt!.Value);
@@ -168,7 +166,7 @@ public class UpdateTests : RepositoryTestsBase
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated") },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<BulkUpdateOperationFailedError>();
@@ -177,7 +175,7 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task OneEntity_UpdateMultiple_ExistingEntityUpdated()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
@@ -185,24 +183,24 @@ public class UpdateTests : RepositoryTestsBase
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.AssertNoError();
-        var updatedEntity = await Repository.GetById(insertResult.Data!.Id, default);
+        var updatedEntity = await Repository.GetById(insertResult.Data!.Id, CancellationToken.None);
         updatedEntity.Data!.StringField.Should().Be("Updated1");
     }
 
     [Fact]
     public async Task ExistingEntity_UpdateMultipleCreatedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
@@ -211,14 +209,14 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateMultipleUpdatedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
@@ -227,14 +225,14 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateMultipleDeletedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)) },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
@@ -243,9 +241,9 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntities_UpdateAtomicMultiple_EntitiesUpdated()
     {
-        var insertResult1 = await Repository.Insert(ValidEntity, default);
+        var insertResult1 = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult1.AssertNoError();
-        var insertResult2 = await Repository.Insert(ValidEntity, default);
+        var insertResult2 = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult2.AssertNoError();
         await Task.Delay(TimeSpan.FromSeconds(2));
 
@@ -253,15 +251,15 @@ public class UpdateTests : RepositoryTestsBase
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult1.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
-                { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") }
-            }, default);
+                { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
+            }, CancellationToken.None);
 
         updateResult.AssertNoError();
-        var updatedEntity1 = await Repository.GetById(insertResult1.Data!.Id, default);
+        var updatedEntity1 = await Repository.GetById(insertResult1.Data!.Id, CancellationToken.None);
         updatedEntity1.Data!.StringField.Should().Be("Updated1");
         updatedEntity1.Data!.UpdatedAt.Should().NotBeCloseTo(insertResult1.Data.UpdatedAt!.Value, TimeSpan.FromSeconds(0.5));
         updatedEntity1.Data!.UpdatedAt.Should().BeAfter(insertResult1.Data.UpdatedAt!.Value);
-        var updatedEntity2 = await Repository.GetById(insertResult2.Data!.Id, default);
+        var updatedEntity2 = await Repository.GetById(insertResult2.Data!.Id, CancellationToken.None);
         updatedEntity2.Data!.StringField.Should().Be("Updated2");
         updatedEntity2.Data!.UpdatedAt.Should().NotBeCloseTo(insertResult2.Data.UpdatedAt!.Value, TimeSpan.FromSeconds(0.5));
         updatedEntity2.Data!.UpdatedAt.Should().BeAfter(insertResult2.Data.UpdatedAt!.Value);
@@ -274,7 +272,7 @@ public class UpdateTests : RepositoryTestsBase
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated") },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<BulkUpdateOperationFailedError>();
@@ -283,7 +281,7 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task OneEntity_UpdateAtomicMultiple_ReturnsErrorAndEntityNotUpdated()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
@@ -291,25 +289,25 @@ public class UpdateTests : RepositoryTestsBase
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<BulkUpdateOperationFailedError>();
-        var updatedEntity = await Repository.GetById(insertResult.Data!.Id, default);
+        var updatedEntity = await Repository.GetById(insertResult.Data!.Id, CancellationToken.None);
         updatedEntity.Data!.StringField.Should().Be(ValidEntity.StringField);
     }
 
     [Fact]
     public async Task ExistingEntity_UpdateAtomicMultipleCreatedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
@@ -318,30 +316,30 @@ public class UpdateTests : RepositoryTestsBase
     [Fact]
     public async Task ExistingEntity_UpdateAtomicMultipleUpdatedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();
     }
 
     [Fact]
-    public async Task ExistingEntity_UpdateAtmoicMultipleDeletedAt_ReturnError()
+    public async Task ExistingEntity_UpdateAtomicMultipleDeletedAt_ReturnError()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
             new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)) },
-            }, default);
+            }, CancellationToken.None);
 
         updateResult.HasError.Should().BeTrue();
         updateResult.Error.Should().BeOfType<InvalidUpdateEntityExpressionError>();

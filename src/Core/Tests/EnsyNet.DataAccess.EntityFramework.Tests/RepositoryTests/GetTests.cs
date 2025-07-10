@@ -13,11 +13,11 @@ public class GetTests : RepositoryTestsBase
     [Fact]
     public async Task EntityInserted_GetById_EntityRetrieved()
     {
-        var insertResult = await Repository.Insert(ValidEntity, default);
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
         var entity = insertResult.Data!;
 
-        var getResult = await Repository.GetById(entity.Id, default);
+        var getResult = await Repository.GetById(entity.Id, CancellationToken.None);
 
         getResult.HasError.Should().BeFalse();
         var retrievedEntity = getResult.Data!;
@@ -27,7 +27,7 @@ public class GetTests : RepositoryTestsBase
     [Fact]
     public async Task NoEntityInDb_GetById_EntityNotFound()
     {
-        var getResult = await Repository.GetById(Guid.NewGuid(), default);
+        var getResult = await Repository.GetById(Guid.NewGuid(), CancellationToken.None);
 
         getResult.HasError.Should().BeTrue();
         getResult.Error.Should().BeOfType<EntityNotFoundError<TestEntity>>();
@@ -37,10 +37,10 @@ public class GetTests : RepositoryTestsBase
     public async Task EntityInserted_GetByExpression_EntityRetrieved()
     {
         var entityToInsert = ValidEntity with { StringField = Guid.NewGuid().ToString() };
-        var insertResult = await Repository.Insert(entityToInsert, default);
+        var insertResult = await Repository.Insert(entityToInsert, CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
-        var getResult = await Repository.GetByExpression(x => x.StringField == entityToInsert.StringField, default);
+        var getResult = await Repository.GetByExpression(x => x.StringField == entityToInsert.StringField, CancellationToken.None);
         
         getResult.HasError.Should().BeFalse();
         var retrievedEntity = getResult.Data!;
@@ -50,7 +50,7 @@ public class GetTests : RepositoryTestsBase
     [Fact]
     public async Task NoEntityInDb_GetByExpression_EntityNotFound()
     {
-        var getResult = await Repository.GetByExpression(x => x.StringField == "inexistentStringField", default);
+        var getResult = await Repository.GetByExpression(x => x.StringField == "nonexistentStringField", CancellationToken.None);
         
         getResult.HasError.Should().BeTrue();
         getResult.Error.Should().BeOfType<EntityNotFoundError<TestEntity>>();
@@ -59,10 +59,10 @@ public class GetTests : RepositoryTestsBase
     [Fact]
     public async Task EntitiesInserted_GetAll_EntitiesRetrieved()
     {
-        var insertResult = await Repository.Insert([ValidEntity, ValidEntity], default);
+        var insertResult = await Repository.Insert([ValidEntity, ValidEntity], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
-        var getAllResult = await Repository.GetAll(default);
+        var getAllResult = await Repository.GetAll(CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         var retrievedEntities = getAllResult.Data!.Where(x => insertResult.Data!.Select(r => r.Id).Contains(x.Id));
@@ -77,10 +77,10 @@ public class GetTests : RepositoryTestsBase
     {
         var entity1 = ValidEntity with { StringField = "A" };
         var entity2 = ValidEntity with { StringField = "B" };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
-        var getAllResult = await Repository.GetAll(new SortingQuery<TestEntity> { SortFieldSelector = x => x.StringField, IsAscending = true }, default);
+        var getAllResult = await Repository.GetAll(new() { SortFieldSelector = x => x.StringField, IsAscending = true }, CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         AssertEntity(getAllResult.Data!.ElementAt(0), entity1);
@@ -92,10 +92,10 @@ public class GetTests : RepositoryTestsBase
     {
         var entity1 = ValidEntity with { StringField = "Z" };
         var entity2 = ValidEntity with { StringField = "X" };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
-        var getAllResult = await Repository.GetAll(new SortingQuery<TestEntity> { SortFieldSelector = x => x.StringField, IsAscending = false }, default);
+        var getAllResult = await Repository.GetAll(new() { SortFieldSelector = x => x.StringField, IsAscending = false }, CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         AssertEntity(getAllResult.Data!.ElementAt(0), entity1);
@@ -105,10 +105,10 @@ public class GetTests : RepositoryTestsBase
     [Fact]
     public async Task EntitiesInserted_GetManyPaged_EntitiesRetrieved()
     {
-        var insertResult = await Repository.Insert([ValidEntity, ValidEntity], default);
+        var insertResult = await Repository.Insert([ValidEntity, ValidEntity], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
-        var getAllResult = await Repository.GetMany(new PaginationQuery { Skip = 0, Take = 1 }, default);
+        var getAllResult = await Repository.GetMany(new() { Skip = 0, Take = 1 }, CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         getAllResult.Data!.Count().Should().Be(1);
@@ -119,17 +119,17 @@ public class GetTests : RepositoryTestsBase
     {
         var entity1 = ValidEntity with { StringField = "_A" };
         var entity2 = ValidEntity with { StringField = "_B" };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
         var getAllResult1 = await Repository.GetMany(
-            new PaginationQuery { Skip = 0, Take = 1 },
-            new SortingQuery<TestEntity> { SortFieldSelector = x => x.StringField, IsAscending = true },
-            default);
+            new() { Skip = 0, Take = 1 },
+            new() { SortFieldSelector = x => x.StringField, IsAscending = true },
+            CancellationToken.None);
         var getAllResult2 = await Repository.GetMany(
-            new PaginationQuery { Skip = 1, Take = 1 },
-            new SortingQuery<TestEntity> { SortFieldSelector = x => x.StringField, IsAscending = true },
-            default);
+            new() { Skip = 1, Take = 1 },
+            new() { SortFieldSelector = x => x.StringField, IsAscending = true },
+            CancellationToken.None);
 
         getAllResult1.HasError.Should().BeFalse();
         getAllResult1.Data!.Count().Should().Be(1);
@@ -145,10 +145,10 @@ public class GetTests : RepositoryTestsBase
         var commonGuid = Guid.NewGuid();
         var entity1 = ValidEntity with { GuidField = commonGuid, StringField = Guid.NewGuid().ToString() };
         var entity2 = ValidEntity with { GuidField = commonGuid, StringField = Guid.NewGuid().ToString() };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
-        var getAllResult = await Repository.GetManyByExpression(x => x.GuidField == commonGuid, default);
+        var getAllResult = await Repository.GetManyByExpression(x => x.GuidField == commonGuid, CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         getAllResult.Data!.Count().Should().Be(2);
@@ -162,10 +162,10 @@ public class GetTests : RepositoryTestsBase
         var commonGuid = Guid.NewGuid();
         var entity1 = ValidEntity with { GuidField = commonGuid, StringField = Guid.NewGuid().ToString() };
         var entity2 = ValidEntity with { GuidField = commonGuid, StringField = Guid.NewGuid().ToString() };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
-        var getAllResult = await Repository.GetManyByExpression(x => x.GuidField == commonGuid, new PaginationQuery { Skip = 0, Take = 1 }, default);
+        var getAllResult = await Repository.GetManyByExpression(x => x.GuidField == commonGuid, new PaginationQuery { Skip = 0, Take = 1 }, CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         getAllResult.Data!.Count().Should().Be(1);
@@ -177,13 +177,13 @@ public class GetTests : RepositoryTestsBase
         var commonGuid = Guid.NewGuid();
         var entity1 = ValidEntity with { GuidField = commonGuid, StringField = "A" };
         var entity2 = ValidEntity with { GuidField = commonGuid, StringField = "B" };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
         var getAllResult = await Repository.GetManyByExpression(
             x => x.GuidField == commonGuid,
             new SortingQuery<TestEntity> { SortFieldSelector = y => y.StringField, IsAscending = true },
-            default);
+            CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         getAllResult.Data!.Count().Should().Be(2);
@@ -197,13 +197,13 @@ public class GetTests : RepositoryTestsBase
         var commonGuid = Guid.NewGuid();
         var entity1 = ValidEntity with { GuidField = commonGuid, StringField = "A" };
         var entity2 = ValidEntity with { GuidField = commonGuid, StringField = "B" };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
         var getAllResult = await Repository.GetManyByExpression(
             x => x.GuidField == commonGuid,
             new SortingQuery<TestEntity> { SortFieldSelector = y => y.StringField, IsAscending = false },
-            default);
+            CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         getAllResult.Data!.Count().Should().Be(2);
@@ -217,14 +217,14 @@ public class GetTests : RepositoryTestsBase
         var commonGuid = Guid.NewGuid();
         var entity1 = ValidEntity with { GuidField = commonGuid, StringField = "A" };
         var entity2 = ValidEntity with { GuidField = commonGuid, StringField = "B" };
-        var insertResult = await Repository.Insert([entity1, entity2], default);
+        var insertResult = await Repository.Insert([entity1, entity2], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
 
         var getAllResult = await Repository.GetManyByExpression(
             x => x.GuidField == commonGuid,
-            new PaginationQuery { Skip = 1, Take = 1 },
-            new SortingQuery<TestEntity> { SortFieldSelector = y => y.StringField, IsAscending = true },
-            default);
+            new() { Skip = 1, Take = 1 },
+            new() { SortFieldSelector = y => y.StringField, IsAscending = true },
+            CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
         getAllResult.Data!.Count().Should().Be(1);

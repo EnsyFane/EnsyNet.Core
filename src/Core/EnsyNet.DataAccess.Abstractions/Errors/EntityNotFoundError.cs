@@ -1,12 +1,15 @@
 ﻿using EnsyNet.Core.Results;
 using EnsyNet.DataAccess.Abstractions.Models;
 
+using JetBrains.Annotations;
+
 namespace EnsyNet.DataAccess.Abstractions.Errors;
 
 /// <summary>
 /// Error returned when a database entity was not found.
 /// </summary>
 /// <typeparam name="T">The type of the entity that was not found.</typeparam>
+[PublicAPI]
 public sealed record EntityNotFoundError<T> : Error where T : DbEntity
 {
     /// <summary>
@@ -17,5 +20,5 @@ public sealed record EntityNotFoundError<T> : Error where T : DbEntity
     /// <summary>
     /// Initializes a new instance of the <see cref="EntityNotFoundError{T}"/> class.
     /// </summary>
-    public EntityNotFoundError() : base(ErrorCodes.ENTITY_NOT_FOUND_ERROR, string.Format(MessageTemplate, typeof(T).Name)) { }
+    public EntityNotFoundError() : base(ErrorCodes.EntityNotFoundError, string.Format(MessageTemplate, typeof(T).Name)) { }
 }

@@ -1,5 +1,7 @@
 ﻿using EnsyNet.DataAccess.Abstractions.Models;
 
+using JetBrains.Annotations;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -9,6 +11,7 @@ namespace EnsyNet.DataAccess.EntityFramework.Configuration;
 /// <summary>
 /// Extension methods for configuring <see cref="DbEntity"/> properties.
 /// </summary>
+[PublicAPI]
 public static class DbEntityConfigurationExtensions
 {
     /// <summary>

@@ -12,8 +12,8 @@ public abstract class RepositoryTestsBase : IDisposable
 
     protected RepositoryTestsBase()
     {
-        DbContext = new TestDbContext(DatabaseConfiguration.Options);
-        Repository = new TestRepository(DbContext);
+        DbContext = new(DatabaseConfiguration.Options);
+        Repository = new(DbContext);
     }
 
     protected readonly TestEntity ValidEntity = new()

@@ -1,11 +1,14 @@
 ﻿using System.Linq.Expressions;
 
+using JetBrains.Annotations;
+
 namespace EnsyNet.DataAccess.Abstractions.Models;
 
 /// <summary>
 /// Wrapper for sorting query parameters.
 /// </summary>
 /// <typeparam name="T">The type of the object that will be sorted.</typeparam>
+[PublicAPI]
 public sealed record SortingQuery<T> where T : DbEntity
 {
     /// <summary>

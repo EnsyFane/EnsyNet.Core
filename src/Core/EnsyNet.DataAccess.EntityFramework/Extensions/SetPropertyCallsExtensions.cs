@@ -13,7 +13,7 @@ internal static class SetPropertyCallsExtensions
     /// <typeparam name="T">The type of the entity saved in the database.</typeparam>
     /// <param name="initialExpression">Left expression.</param>
     /// <param name="additionalExpression">Right expression.</param>
-    /// <returns>A new expression composed from merging the 2 expressions.</returns>
+    /// <returns>A new expression composed by merging the 2 expressions.</returns>
     public static Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> AddExpression<T>(
         this Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> initialExpression,
         Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> additionalExpression)
@@ -25,7 +25,7 @@ internal static class SetPropertyCallsExtensions
     public static Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> GetSetPropertyCallsExpression<T>(this Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> expression) where T : DbEntity
     {
         var methods = SplitMethodChain(expression);
-        var setPropertyCalls = methods.Select(MorphExpression<T>);
+        var setPropertyCalls = methods.Select(MorphExpression);
         var mergedExpression = setPropertyCalls.Aggregate((x, y) => x.AddExpression(y));
         return mergedExpression;
     }

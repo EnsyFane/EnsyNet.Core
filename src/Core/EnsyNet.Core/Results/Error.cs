@@ -1,8 +1,11 @@
-﻿namespace EnsyNet.Core.Results;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.Core.Results;
 
 /// <summary>
 /// POCO record used to represent an error.
 /// </summary>
+[PublicAPI]
 public abstract record Error
 {
     /// <summary>
@@ -19,7 +22,7 @@ public abstract record Error
     /// <summary>
     /// A description of the error.
     /// </summary>
-    public string ErrorMessage { get; init; } = string.Empty;
+    public string ErrorMessage { get; private init; } = string.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Error"/> class.
