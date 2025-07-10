@@ -8,45 +8,45 @@ public static class ErrorCodes
     /// <summary>
     /// Error code for when an entity is not found.
     /// </summary>
-    public const string ENTITY_NOT_FOUND_ERROR = "[EntityNotFoundError]";
+    public const string EntityNotFoundError = "[EntityNotFoundError]";
 
     /// <summary>
     /// Error code for when the repository ran into an unexpected database error.
     /// </summary>
-    public const string UNEXPECTED_DATABASE_ERROR = "[UnexpectedDatabaseError]";
+    public const string UnexpectedDatabaseError = "[UnexpectedDatabaseError]";
 
     /// <summary>
     /// Error code for when a bulk delete operation fails.
     /// </summary>
-    public const string BULK_DELETE_OPERATION_FAILED_ERROR = "[BulkDeleteOperationFailedError]";
+    public const string BulkDeleteOperationFailedError = "[BulkDeleteOperationFailedError]";
 
     /// <summary>
     /// Error code for when a delete operation fails.
     /// </summary>
-    public const string DELETE_OPERATION_FAILED_ERROR = "[DeleteOperationFailedError]";
+    public const string DeleteOperationFailedError = "[DeleteOperationFailedError]";
 
     /// <summary>
     /// Error code for when a bulk insert operation fails.
     /// </summary>
-    public const string BULK_INSERT_OPERATION_FAILED_ERROR = "[BulkInsertOperationFailedError]";
+    public const string BulkInsertOperationFailedError = "[BulkInsertOperationFailedError]";
 
     /// <summary>
     /// Error code for when an insert operation fails.
     /// </summary>
-    public const string INSERT_OPERATION_FAILED_ERROR = "[InsertOperationFailedError]";
+    public const string InsertOperationFailedError = "[InsertOperationFailedError]";
 
     /// <summary>
     /// Error code for when a bulk update operation fails.
     /// </summary>
-    public const string BULK_UPDATE_OPERATION_FAILED_ERROR = "[BulkUpdateOperationFailedError]";
+    public const string BulkUpdateOperationFailedError = "[BulkUpdateOperationFailedError]";
 
     /// <summary>
     /// Error code for when an update operation fails.
     /// </summary>
-    public const string UPDATE_OPERATION_FAILED_ERROR = "[UpdateOperationFailedError]";
+    public const string UpdateOperationFailedError = "[UpdateOperationFailedError]";
 
     /// <summary>
     /// Error code for when an update operation fails due to an invalid expression provided by the user.
     /// </summary>
-    public const string INVALID_UPDATE_ENTITY_EXPRESSION_ERROR = "[InvalidUpdateEntityExpressionError]";
+    public const string InvalidUpdateEntityExpressionError = "[InvalidUpdateEntityExpressionError]";
 }

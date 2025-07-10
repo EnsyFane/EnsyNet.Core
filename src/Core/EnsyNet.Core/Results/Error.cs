@@ -19,7 +19,7 @@ public abstract record Error
     /// <summary>
     /// A description of the error.
     /// </summary>
-    public string ErrorMessage { get; init; } = string.Empty;
+    public string ErrorMessage { get; private init; } = string.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Error"/> class.

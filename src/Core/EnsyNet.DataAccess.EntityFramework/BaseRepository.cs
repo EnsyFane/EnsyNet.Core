@@ -573,7 +573,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
     {
         try
         {
-            using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
 
             var result = await ExecuteDbQuery(func);
             if (result.HasError)

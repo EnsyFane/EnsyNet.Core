@@ -5,10 +5,10 @@ using EnsyNet.DataAccess.Abstractions.Models;
 
 using System.Linq.Expressions;
 
-var r = Result.Ok();
+_ = Result.Ok();
 Result<string> r2 = Result.Ok("Hello, World!");
 
-var rError = Result.FromError(new BulkDeleteOperationFailedError());
+_ = Result.FromError(new BulkDeleteOperationFailedError());
 
 Console.WriteLine(r2.Data);
 var cts = new CancellationTokenSource();
@@ -19,7 +19,7 @@ var pagination = new PaginationQuery() { Skip = 0, Take = 100 };
 var sorting = new SortingQuery<TestEntity>()
 {
     IsAscending = true,
-    SortFieldSelector = e => e.Id
+    SortFieldSelector = e => e.Id,
 };
 
 IRepository<TestEntity> repository = null!;
@@ -44,8 +44,7 @@ await repository.HardDelete(Guid.NewGuid(), cts.Token);
 await repository.HardDelete(new List<Guid> { Guid.NewGuid() }, cts.Token);
 await repository.HardDelete(e => e.UpdatedAt != null, cts.Token);
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1050:Declare types in namespaces", Justification = "Sample code. Not production.")]
-public sealed record TestEntity : DbEntity
+internal sealed record TestEntity : DbEntity
 {
     public string Name { get; set; } = string.Empty;
 }

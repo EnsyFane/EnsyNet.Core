@@ -10,5 +10,5 @@ internal static class ResultExtensions
         => result.Should().BeEquivalentTo(Result.Ok());
 
     public static void AssertNoError<T>(this Result<T> result)
-        => result.Should().BeEquivalentTo(Result<T>.Ok());
+        => result.Should().BeEquivalentTo(Result.Ok());
 }

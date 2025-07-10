@@ -10,5 +10,5 @@ public sealed record InsertOperationFailedError : Error
     /// <summary>
     /// Initializes a new instance of the <see cref="InsertOperationFailedError"/> class.
     /// </summary>
-    public InsertOperationFailedError() : base(ErrorCodes.INSERT_OPERATION_FAILED_ERROR) { }
+    public InsertOperationFailedError() : base(ErrorCodes.InsertOperationFailedError) { }
 }

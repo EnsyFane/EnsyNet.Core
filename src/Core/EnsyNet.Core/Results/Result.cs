@@ -12,7 +12,7 @@ public record Result
     /// <summary>
     /// The error that occurred during the operation. (If applicable)
     /// </summary>
-    public Error? Error { get; init; }
+    public Error? Error { get; private init; }
 
     /// <summary>
     /// Whether the operation completed with errors or not.
@@ -31,7 +31,7 @@ public record Result
     /// Gets a new <see cref="Result{T}"/> instance with no errors. And with data that can be used by the caller method.
     /// </summary>
     /// <typeparam name="T">The type of the data stored in the result</typeparam>
-    /// <param name="data">The actual data to be retuned</param>
+    /// <param name="data">The actual data to be returned</param>
     /// <returns>A <see cref="Result{T}"/> instance with no errors.</returns>
     public static Result<T> Ok<T>(T data) => new() { Data = data };
 

@@ -10,7 +10,7 @@ public static class ConfigurationServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="T">The configuration type to add to Dependency Injection container.</typeparam>
     /// <param name="services">Service collection from Dependency Injection container.</param>
-    /// <param name="configuration">Configuration conaining all config values.</param>
+    /// <param name="configuration">Configuration containing all config values.</param>
     /// <returns>The service collection so that it can be chained in subsequent calls.</returns>
     public static IServiceCollection AddConfiguration<T>(this IServiceCollection services, IConfiguration configuration) where T : class, IConfig
     {
@@ -27,7 +27,7 @@ public static class ConfigurationServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="T">The configuration type to add to Dependency Injection container.</typeparam>
     /// <param name="services">Service collection from Dependency Injection container.</param>
-    /// <param name="configuration">Configuration conaining all config values.</param>
+    /// <param name="configuration">Configuration containing all config values.</param>
     /// <param name="config">The populated configuration object.</param>
     /// <returns>The service collection so that it can be chained in subsequent calls.</returns>
     public static IServiceCollection AddConfiguration<T>(this IServiceCollection services, IConfiguration configuration, out T config) where T : class, IConfig
@@ -47,7 +47,7 @@ public static class ConfigurationServiceCollectionExtensions
     /// <remarks>Throws <see cref="InvalidOperationException"/> if configuration section is not found.</remarks>
     /// <typeparam name="T">The configuration type to add to Dependency Injection container.</typeparam>
     /// <param name="services">Service collection from Dependency Injection container.</param>
-    /// <param name="configuration">Configuration conaining all config values.</param>
+    /// <param name="configuration">Configuration containing all config values.</param>
     /// <returns>The service collection so that it can be chained in subsequent calls.</returns>
     /// <exception cref="InvalidOperationException" />
     public static IServiceCollection AddRequiredConfiguration<T>(this IServiceCollection services, IConfiguration configuration) where T : class, IConfig
@@ -66,7 +66,7 @@ public static class ConfigurationServiceCollectionExtensions
     /// <remarks>Throws <see cref="InvalidOperationException"/> if configuration section is not found.</remarks>
     /// <typeparam name="T">The configuration type to add to Dependency Injection container.</typeparam>
     /// <param name="services">Service collection from Dependency Injection container.</param>
-    /// <param name="configuration">Configuration conaining all config values.</param>
+    /// <param name="configuration">Configuration containing all config values.</param>
     /// <param name="config">The populated configuration object.</param>
     /// <returns>The service collection so that it can be chained in subsequent calls.</returns>
     /// <exception cref="InvalidOperationException" />

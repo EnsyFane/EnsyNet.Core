@@ -10,5 +10,5 @@ public sealed record BulkDeleteOperationFailedError : Error
     /// <summary>
     /// Initializes a new instance of the <see cref="BulkDeleteOperationFailedError"/> class.
     /// </summary>
-    public BulkDeleteOperationFailedError() : base(ErrorCodes.BULK_DELETE_OPERATION_FAILED_ERROR) { }
+    public BulkDeleteOperationFailedError() : base(ErrorCodes.BulkDeleteOperationFailedError) { }
 }

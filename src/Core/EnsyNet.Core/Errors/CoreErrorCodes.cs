@@ -8,5 +8,5 @@ public static class CoreErrorCodes
     /// <summary>
     /// Error code for when an operation was canceled via a <see cref="CancellationToken"/>.
     /// </summary>
-    public const string OPERATION_CANCELED_ERROR = "[OperationCanceledError]";
+    public const string OperationCanceledError = "[OperationCanceledError]";
 }
