@@ -3,12 +3,15 @@ using EnsyNet.DataAccess.Abstractions.Models;
 
 using System.Linq.Expressions;
 
+using JetBrains.Annotations;
+
 namespace EnsyNet.DataAccess.Abstractions.Interfaces;
 
 /// <summary>
 /// Repository containing all supported operations that can be performed on a database entity.
 /// </summary>
 /// <typeparam name="T">The type of the entity stored in the database.</typeparam>
+[PublicAPI]
 public interface IRepository<T> where T : DbEntity
 {
     /// <summary>

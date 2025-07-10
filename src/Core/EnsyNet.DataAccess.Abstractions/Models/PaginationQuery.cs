@@ -1,8 +1,11 @@
-﻿namespace EnsyNet.DataAccess.Abstractions.Models;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.DataAccess.Abstractions.Models;
 
 /// <summary>
 /// Wrapper for pagination query parameters.
 /// </summary>
+[PublicAPI]
 public sealed record PaginationQuery
 {
     /// <summary>

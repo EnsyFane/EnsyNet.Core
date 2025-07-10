@@ -1,8 +1,11 @@
-﻿namespace EnsyNet.Core.Results;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.Core.Results;
 
 /// <summary>
 /// POCO record used to represent an error.
 /// </summary>
+[PublicAPI]
 public abstract record Error
 {
     /// <summary>

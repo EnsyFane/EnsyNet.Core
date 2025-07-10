@@ -1,12 +1,14 @@
-﻿namespace EnsyNet.DataAccess.Abstractions.Models;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.DataAccess.Abstractions.Models;
 
 /// <summary>
 /// Class used to add updates to an entity.
 /// </summary>
 /// <typeparam name="T">The type of the entity to be updated.</typeparam>
+[PublicAPI]
 public sealed class EntityUpdates<T> where T : DbEntity
 {
-#pragma warning disable IDE0060 // Remove unused parameter
     /// <summary>
     /// Method used to add updates to an entity.
     /// </summary>
@@ -19,5 +21,4 @@ public sealed class EntityUpdates<T> where T : DbEntity
     {
         return this;
     }
-#pragma warning restore IDE0060 // Remove unused parameter
 }

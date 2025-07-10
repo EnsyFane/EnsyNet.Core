@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using JetBrains.Annotations;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EnsyNet.Core.Configurations;
 
+[PublicAPI]
 public static class ConfigurationServiceCollectionExtensions
 {
     /// <summary>

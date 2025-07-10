@@ -1,4 +1,6 @@
-﻿namespace EnsyNet.Core.Results;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.Core.Results;
 
 /// <summary>
 /// Wrapper record used as a return type for methods that can fail.
@@ -7,6 +9,7 @@
 /// Used to avoid using exceptions for flow control.
 /// If the method fails, the <see cref="Error"/> property will be populated.
 /// </remarks>
+[PublicAPI]
 public record Result
 {
     /// <summary>

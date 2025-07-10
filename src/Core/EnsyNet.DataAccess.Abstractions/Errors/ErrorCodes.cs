@@ -1,8 +1,11 @@
-﻿namespace EnsyNet.DataAccess.Abstractions.Errors;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.DataAccess.Abstractions.Errors;
 
 /// <summary>
 /// Error codes used in the data access layer.
 /// </summary>
+[PublicAPI]
 public static class ErrorCodes
 {
     /// <summary>

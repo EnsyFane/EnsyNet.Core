@@ -12,12 +12,15 @@ using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
+using JetBrains.Annotations;
+
 namespace EnsyNet.DataAccess.EntityFramework;
 
 /// <summary>
 /// Base repository class for CRUD operations.
 /// </summary>
 /// <typeparam name="T">The type of the entity that this repository operates on.</typeparam>
+[PublicAPI]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Needed until we know what exceptions can be thrown by EF.")]
 public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEntity
 {

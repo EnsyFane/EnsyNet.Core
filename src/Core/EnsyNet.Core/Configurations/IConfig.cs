@@ -1,9 +1,12 @@
-﻿namespace EnsyNet.Core.Configurations;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.Core.Configurations;
 
 /// <summary>
 /// Interface for configuration classes.
 /// </summary>
 /// <remarks>Creating records with this interface allows the use of methods from <see cref="ConfigurationServiceCollectionExtensions"/> which make adding configurations easier.</remarks>
+[PublicAPI]
 public interface IConfig
 {
     /// <summary>
