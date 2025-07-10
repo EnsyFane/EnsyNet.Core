@@ -1,8 +1,11 @@
-﻿namespace EnsyNet.Core.Errors;
+﻿using JetBrains.Annotations;
+
+namespace EnsyNet.Core.Errors;
 
 /// <summary>
 /// Error codes used in the core layer.
 /// </summary>
+[PublicAPI]
 public static class CoreErrorCodes
 {
     /// <summary>
