@@ -5,9 +5,11 @@
 Pre-release NuGet versions are not supported and no attempts to fix vulnerability issues will be made. You should NOT use pre-release versions in production applications.
 As a general rule of thumb, for now only the latest Major NuGet version will be supported unless stated otherwise.
 
-| Version | Supported          | LTS                |
-| ------- | ------------------ | ------------------ |
-| 0.0.x   | :white_check_mark: | :x: |
+| Version   | Supported             | LTS               |
+| --------- | --------------------- | ----------------- |
+| 0.x.x     | :x:                   | :x:               |
+| 1.0.x     | :x:                   | :x:               |
+| 1.1.x     | :white_check_mark:    | :x:               |
 
 ## Reporting a Vulnerability
 
