@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>0.0.5</Version>
@@ -26,8 +26,8 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(SolutionDir)/../LICENSE.txt" Pack="true" PackagePath="" />
-    <None Include="$(SolutionDir)/../README.md" Pack="true" PackagePath="" />
+    <None Include="$(SolutionDir)/../../LICENSE.txt" Pack="true" PackagePath="" />
+    <None Include="$(SolutionDir)/../../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="FluentAssertions" Version="7.2.0" />
