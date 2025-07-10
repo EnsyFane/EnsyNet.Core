@@ -26,8 +26,8 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(SolutionDir)/../LICENSE.txt" Pack="true" PackagePath="" />
-    <None Include="$(SolutionDir)/../README.md" Pack="true" PackagePath="" />
+    <None Include="$(SolutionDir)/../../LICENSE.txt" Pack="true" PackagePath="" />
+    <None Include="$(SolutionDir)/../../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="FluentAssertions" Version="7.2.0" />
