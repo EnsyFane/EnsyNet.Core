@@ -64,6 +64,6 @@ public static class DbEntityConfigurationExtensions
         builder.HasIndex(e => new
         {
             e.OrgId,
-        }).HasFilter($"{nameof(PartitionedDbEntity.DeletedAt)} IS NOT NULL");
+        }).HasFilter($"{nameof(PartitionedDbEntity.DeletedAt)} IS NULL");
     }
 }
