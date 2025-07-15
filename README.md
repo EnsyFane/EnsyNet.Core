@@ -5,3 +5,7 @@ Sonar quality gate: [![Quality Gate Status](https://sonarcloud.io/api/project_ba
 CI/CD: [![ensy-net-core](https://github.com/EnsyFane/EnsyNet.Core/actions/workflows/ensy-net-core-workflow.yml/badge.svg)](https://github.com/EnsyFane/EnsyNet.Core/actions/workflows/ensy-net-core-workflow.yml)
 
 Since I am the main consumer of this NuGet package, only the latest .NET version will be supported. If someone specifically requests support for older, still-supported LTS .NET versions, I will consider adding it.
+
+https://www.nuget.org/packages/EnsyNet.Core
+https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions
+https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework
