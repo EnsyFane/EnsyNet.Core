@@ -8,6 +8,7 @@ namespace EnsyNet.DataAccess.EntityFramework.Tests.Helpers;
 public sealed class TestDbContext : DbContext
 {
     public DbSet<TestEntity> TestEntities { get; set; }
+    public DbSet<PartitionedTestEntity> PartitionedTestEntities { get; set; }
 
     public TestDbContext(DbContextOptions<TestDbContext> options) : base(options) { }
 
@@ -16,5 +17,6 @@ public sealed class TestDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<TestEntity>().ConfigureBaseProperties();
+        modelBuilder.Entity<PartitionedTestEntity>().ConfigurePartitionedBaseProperties();
     }
 }

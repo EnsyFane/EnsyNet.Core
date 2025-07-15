@@ -6,7 +6,7 @@ using FluentAssertions;
 
 using Xunit;
 
-namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
+namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests.BaseRepositoryTests;
 
 public class GetTests : RepositoryTestsBase
 {
@@ -83,8 +83,8 @@ public class GetTests : RepositoryTestsBase
         var getAllResult = await Repository.GetAll(new() { SortFieldSelector = x => x.StringField, IsAscending = true }, CancellationToken.None);
         
         getAllResult.HasError.Should().BeFalse();
-        AssertEntity(getAllResult.Data!.ElementAt(0), entity1);
-        AssertEntity(getAllResult.Data!.ElementAt(1), entity2);
+        AssertEntity(getAllResult.Data!.Where(x => x.GuidField == ValidEntity.GuidField).ElementAt(0), entity1);
+        AssertEntity(getAllResult.Data!.Where(x => x.GuidField == ValidEntity.GuidField).ElementAt(1), entity2);
     }
 
     [Fact]

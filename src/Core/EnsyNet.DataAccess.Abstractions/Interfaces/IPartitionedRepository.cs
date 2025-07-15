@@ -16,7 +16,7 @@ namespace EnsyNet.DataAccess.Abstractions.Interfaces;
 public interface IPartitionedRepository<T> where T : PartitionedDbEntity
 {
     /// <summary>
-    /// Retrieves a single entity from the database by its <see cref="PartitionedDbEntity.Id"/>.
+    /// Retrieves a single entity from the database by its <see cref="DbEntity.Id"/>.
     /// </summary>
     /// <param name="orgId">The org id of the entity.</param>
     /// <param name="id">The id of the entity.</param>
@@ -69,7 +69,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// <summary>
     /// Retrieves entities from the database paginated based on the provided <see cref="PaginationQuery"/>. 
     /// </summary>
-    /// <remarks>Entities will be sorted ascending by <see cref="PartitionedDbEntity.Id"/>.</remarks>
+    /// <remarks>Entities will be sorted ascending by <see cref="DbEntity.Id"/>.</remarks>
     /// <param name="orgId">The org id of the entity.</param>
     /// <param name="paginationQuery">The pagination query to use.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -95,7 +95,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// <summary>
     /// Retrieves entities from the database based on the provided filter. 
     /// </summary>
-    /// <remarks>Entities will be sorted ascending by <see cref="PartitionedDbEntity.Id"/>.</remarks>
+    /// <remarks>Entities will be sorted ascending by <see cref="DbEntity.Id"/>.</remarks>
     /// <param name="orgId">The org id of the entity.</param>
     /// <param name="filter">The filter to use.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -108,7 +108,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// <summary>
     /// Retrieves entities from the database based on the provided filter and paginated based on the provided <see cref="PaginationQuery"/>. 
     /// </summary>
-    /// <remarks>Entities will be sorted ascending by <see cref="PartitionedDbEntity.Id"/>.</remarks>
+    /// <remarks>Entities will be sorted ascending by <see cref="DbEntity.Id"/>.</remarks>
     /// <param name="orgId">The org id of the entity.</param>
     /// <param name="filter">The filter to use.</param>
     /// <param name="paginationQuery">The pagination query to use.</param>
@@ -150,7 +150,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// <summary>
     /// Inserts a single entity into the database.
     /// </summary>
-    /// <remarks>The <see cref="PartitionedDbEntity.Id"/> and <see cref="PartitionedDbEntity.CreatedAt"/> fields will be overwritten and the <see cref="PartitionedDbEntity.UpdatedAt"/> and <see cref="PartitionedDbEntity.DeletedAt"/> fields will be set to null.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
     /// <param name="entity">The entity to insert.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -164,7 +164,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// Inserts multiple entities into the database.
     /// If one insertion fails, the operation will continue and the inserted entities will be returned.
     /// </summary>
-    /// <remarks>The <see cref="PartitionedDbEntity.Id"/> and <see cref="PartitionedDbEntity.CreatedAt"/> fields will be overwritten and the <see cref="PartitionedDbEntity.UpdatedAt"/> and <see cref="PartitionedDbEntity.DeletedAt"/> fields will be set to null.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
     /// <param name="entities">The entities to insert.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -177,7 +177,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// Inserts multiple entities into the database. Will fail and revert if one insertion fails.
     /// If one insertion fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
-    /// <remarks>The <see cref="PartitionedDbEntity.Id"/> and <see cref="PartitionedDbEntity.CreatedAt"/> fields will be overwritten and the <see cref="PartitionedDbEntity.UpdatedAt"/> and <see cref="PartitionedDbEntity.DeletedAt"/> fields will be set to null.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/> and <see cref="DbEntity.CreatedAt"/> fields will be overwritten and the <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields will be set to null.</remarks>
     /// <param name="entities">The entities to insert.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -190,7 +190,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// <summary>
     /// Updates a single entity from the database.
     /// </summary>
-    /// <remarks>The <see cref="PartitionedDbEntity.Id"/>, <see cref="PartitionedDbEntity.CreatedAt"/>, <see cref="PartitionedDbEntity.UpdatedAt"/> and <see cref="PartitionedDbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
     /// <param name="orgId">The org id of the entity.</param>
     /// <param name="id">The id of the entity to update.</param>
     /// <param name="updateExpression">An expression that describes the updates that need to be applied to the entity.</param>
@@ -207,7 +207,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// Updates multiple entities from the database.
     /// If one update fails, the operation will continue and the updated entities will be returned.
     /// </summary>
-    /// <remarks>The <see cref="PartitionedDbEntity.Id"/>, <see cref="PartitionedDbEntity.CreatedAt"/>, <see cref="PartitionedDbEntity.UpdatedAt"/> and <see cref="PartitionedDbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
     /// <param name="orgId">The org id of the entity.</param>
     /// <param name="idToUpdateMap">A map from an entity id to an expression that describes the updates that need to be applied to the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -222,7 +222,7 @@ public interface IPartitionedRepository<T> where T : PartitionedDbEntity
     /// Updates multiple entities from the database. Will fail and rollback if one update fails.
     /// If one update fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
     /// </summary>
-    /// <remarks>The <see cref="PartitionedDbEntity.Id"/>, <see cref="PartitionedDbEntity.CreatedAt"/>, <see cref="PartitionedDbEntity.UpdatedAt"/> and <see cref="PartitionedDbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
+    /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
     /// <param name="orgId">The org id of the entity.</param>
     /// <param name="idToUpdateMap">A map from an entity id to an expression that describes the updates that need to be applied to the entity.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
