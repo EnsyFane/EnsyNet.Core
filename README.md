@@ -8,4 +8,4 @@ Since I am the main consumer of this NuGet package, only the latest .NET version
 
 https://www.nuget.org/packages/EnsyNet.Core<br>
 https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions<br>
-https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework
+https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework<br>
