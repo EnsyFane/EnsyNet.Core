@@ -46,9 +46,24 @@ public static class DbEntityConfigurationExtensions
 
         builder.Property(e => e.DeletedAt)
             .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+
         builder.HasQueryFilter(e => e.DeletedAt == null);
-        builder.Property(e => e.DeletedAt)
-            .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
-        builder.HasQueryFilter(e => e.DeletedAt == null);
+    }
+
+    /// <summary>
+    /// Configures the base properties of a <see cref="PartitionedDbEntity"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the entity to configure.</typeparam>
+    /// <param name="builder">The <see cref="EntityTypeBuilder{T}"/> to use for configuring the entity.</param>
+    public static void ConfigurePartitionedBaseProperties<T>(this EntityTypeBuilder<T> builder) where T : PartitionedDbEntity
+    {
+        builder.ConfigureBaseProperties();
+
+        builder.Property(e => e.OrgId)
+            .IsRequired();
+        builder.HasIndex(e => new
+        {
+            e.OrgId,
+        }).HasFilter($"{nameof(PartitionedDbEntity.DeletedAt)} IS NULL");
     }
 }

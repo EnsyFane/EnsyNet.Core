@@ -2,7 +2,7 @@
 
 using Xunit;
 
-namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
+namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests.PartitionedRepositoryTests;
 
 public class InsertTests : RepositoryTestsBase
 {

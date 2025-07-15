@@ -7,49 +7,50 @@ using Microsoft.EntityFrameworkCore;
 
 using Xunit;
 
-namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
+namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests.PartitionedRepositoryTests;
 
-public class SoftDeleteTests : RepositoryTestsBase
+public class HardDeleteTests : RepositoryTestsBase
 {
     [Fact]
-    public async Task EntityInserted_SoftDeleteById_EntitySoftDeleted()
+    public async Task EntityInserted_HardDelete_EntityHardDeleted()
     {
         var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
         var entity = insertResult.Data!;
 
-        var deleteResult = await Repository.SoftDelete(entity.Id, CancellationToken.None);
+        var deleteResult = await Repository.HardDelete(entity.Id, CancellationToken.None);
         
         deleteResult.HasError.Should().BeFalse();
-        await AssertEntitySoftDeleted(entity);
+        await AssertEntityHardDeleted(entity);
     }
 
     [Fact]
-    public async Task SoftDeletedEntity_SoftDelete_SecondSoftDeleteFails()
+    public async Task SoftDeletedEntity_HardDelete_EntityHardDeleted()
     {
         var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
         var entity = insertResult.Data!;
-        var firstDeleteResult = await Repository.SoftDelete(entity.Id, CancellationToken.None);
-        firstDeleteResult.HasError.Should().BeFalse();
-        await AssertEntitySoftDeleted(entity);
+        var softDeleteResult = await Repository.SoftDelete(entity.Id, CancellationToken.None);
+        softDeleteResult.HasError.Should().BeFalse();
 
-        var secondDeleteResult = await Repository.SoftDelete(entity.Id, CancellationToken.None);
+        var hardDeleteResult = await Repository.HardDelete(entity.Id, CancellationToken.None);
         
-        secondDeleteResult.HasError.Should().BeTrue();
-        secondDeleteResult.Error.Should().BeOfType<DeleteOperationFailedError>();
+        hardDeleteResult.HasError.Should().BeFalse();
+        await AssertEntityHardDeleted(entity);
     }
 
     [Fact]
-    public async Task EntitiesInserted_SoftDeleteAtomicByIds_EntitySoftDeleted()
+    public async Task EntitiesInserted_HardDeleteAtomicByIds_EntityHardDeleted()
     {
         var insertResult = await Repository.Insert([ValidEntity, ValidEntity, ValidEntity], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
         var entities = insertResult.Data!.ToList();
-        var toDelete = entities.Select(x => x.Id).Take(2);
+        var toDelete = entities.Select(x => x.Id).Take(2).ToList();
+        var softDeleteResult = await Repository.SoftDelete(toDelete, CancellationToken.None);
+        softDeleteResult.HasError.Should().BeFalse();
         var toKeep = entities.Select(x => x.Id).Skip(2).Single();
 
-        var deleteResult = await Repository.SoftDeleteAtomic(toDelete, CancellationToken.None);
+        var deleteResult = await Repository.HardDeleteAtomic(toDelete, CancellationToken.None);
         
         deleteResult.HasError.Should().BeFalse();
         deleteResult.Data.Should().Be(2);
@@ -62,20 +63,22 @@ public class SoftDeleteTests : RepositoryTestsBase
             }
             else
             {
-                await AssertEntitySoftDeleted(entity);
+                await AssertEntityHardDeleted(entity);
             }
         }
     }
 
     [Fact]
-    public async Task EntitiesInserted_SoftDeleteAtomicByExpression_EntitySoftDeleted()
+    public async Task EntitiesInserted_HardDeleteAtomicByExpression_EntitySoftDeleted()
     {
         var entityWithDifferentGuid = ValidEntity with { GuidField = Guid.NewGuid() };
         var insertResult = await Repository.Insert([ValidEntity, ValidEntity, entityWithDifferentGuid], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
+        var softDeleteResult = await Repository.SoftDelete(x => x.GuidField == ValidEntity.GuidField, CancellationToken.None);
+        softDeleteResult.HasError.Should().BeFalse();
         var entities = insertResult.Data!;
 
-        var deleteResult = await Repository.SoftDeleteAtomic(x => x.GuidField == ValidEntity.GuidField, CancellationToken.None);
+        var deleteResult = await Repository.HardDeleteAtomic(x => x.GuidField == ValidEntity.GuidField, CancellationToken.None);
         
         deleteResult.HasError.Should().BeFalse();
         deleteResult.Data.Should().Be(2);
@@ -83,7 +86,7 @@ public class SoftDeleteTests : RepositoryTestsBase
         {
             if (entity.GuidField == ValidEntity.GuidField)
             {
-                await AssertEntitySoftDeleted(entity);
+                await AssertEntityHardDeleted(entity);
             }
             else
             {
@@ -94,15 +97,17 @@ public class SoftDeleteTests : RepositoryTestsBase
     }
 
     [Fact]
-    public async Task EntitiesInserted_SoftDeleteByIds_EntitiesSoftDeleted()
+    public async Task EntitiesInserted_HardDeleteByIds_EntitiesSoftDeleted()
     {
         var insertResult = await Repository.Insert([ValidEntity, ValidEntity, ValidEntity], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
         var entities = insertResult.Data!.ToList();
-        var toDelete = entities.Select(x => x.Id).Take(2);
+        var toDelete = entities.Select(x => x.Id).Take(2).ToList();
+        var softDeleteResult = await Repository.SoftDelete(toDelete, CancellationToken.None);
+        softDeleteResult.HasError.Should().BeFalse();
         var toKeep = entities.Select(x => x.Id).Skip(2).Single();
 
-        var deleteResult = await Repository.SoftDelete(toDelete, CancellationToken.None);
+        var deleteResult = await Repository.HardDelete(toDelete, CancellationToken.None);
         
         deleteResult.HasError.Should().BeFalse();
         deleteResult.Data.Should().Be(2);
@@ -115,20 +120,22 @@ public class SoftDeleteTests : RepositoryTestsBase
             }
             else
             {
-                await AssertEntitySoftDeleted(entity);
+                await AssertEntityHardDeleted(entity);
             }
         }
     }
 
     [Fact]
-    public async Task EntitiesInserted_SoftDeleteByExpression_EntitiesSoftDeleted()
+    public async Task EntitiesInserted_HardDeleteByExpression_EntitiesSoftDeleted()
     {
         var entityWithDifferentGuid = ValidEntity with { GuidField = Guid.NewGuid() };
         var insertResult = await Repository.Insert([ValidEntity, ValidEntity, entityWithDifferentGuid], CancellationToken.None);
         insertResult.HasError.Should().BeFalse();
         var entities = insertResult.Data!;
+        var softDeleteResult = await Repository.SoftDelete(x => x.GuidField == ValidEntity.GuidField, CancellationToken.None);
+        softDeleteResult.HasError.Should().BeFalse();
 
-        var deleteResult = await Repository.SoftDelete(x => x.GuidField == ValidEntity.GuidField, CancellationToken.None);
+        var deleteResult = await Repository.HardDelete(x => x.GuidField == ValidEntity.GuidField, CancellationToken.None);
         
         deleteResult.HasError.Should().BeFalse();
         deleteResult.Data.Should().Be(2);
@@ -136,7 +143,7 @@ public class SoftDeleteTests : RepositoryTestsBase
         {
             if (entity.GuidField == ValidEntity.GuidField)
             {
-                await AssertEntitySoftDeleted(entity);
+                await AssertEntityHardDeleted(entity);
             }
             else
             {
@@ -146,7 +153,7 @@ public class SoftDeleteTests : RepositoryTestsBase
         }
     }
 
-    private async Task AssertEntitySoftDeleted(TestEntity originalEntity)
+    private async Task AssertEntityHardDeleted(TestEntity originalEntity)
     {
         var getEntityInRepoResult = await Repository.GetById(originalEntity.Id, CancellationToken.None);
         getEntityInRepoResult.HasError.Should().BeTrue();
@@ -154,8 +161,7 @@ public class SoftDeleteTests : RepositoryTestsBase
 
         var actualEntity = await DbContext.TestEntities
             .IgnoreQueryFilters()
-            .SingleAsync(x => x.Id == originalEntity.Id);
-        actualEntity.DeletedAt.Should().NotBeNull();
-        actualEntity.DeletedAt.Should().BeCloseTo(originalEntity.CreatedAt, TimeSpan.FromSeconds(1));
+            .SingleOrDefaultAsync(x => x.Id == originalEntity.Id);
+        actualEntity.Should().BeNull();
     }
 }
