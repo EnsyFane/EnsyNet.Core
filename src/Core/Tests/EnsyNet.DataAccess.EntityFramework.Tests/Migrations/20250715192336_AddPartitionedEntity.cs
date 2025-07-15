@@ -17,6 +17,7 @@ namespace EnsyNet.DataAccess.EntityFramework.Tests.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWSEQUENTIALID()"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Value = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETUTCDATE()"),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -31,7 +32,7 @@ namespace EnsyNet.DataAccess.EntityFramework.Tests.Migrations
                 name: "IX_PartitionedTestEntities_OrgId",
                 table: "PartitionedTestEntities",
                 column: "OrgId",
-                filter: "DeletedAt IS NOT NULL");
+                filter: "DeletedAt IS NULL");
         }
 
         /// <inheritdoc />

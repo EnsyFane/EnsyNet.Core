@@ -55,7 +55,7 @@ namespace EnsyNet.DataAccess.EntityFramework.Tests.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrgId")
-                        .HasFilter("DeletedAt IS NOT NULL");
+                        .HasFilter("DeletedAt IS NULL");
 
                     b.ToTable("PartitionedTestEntities");
                 });
