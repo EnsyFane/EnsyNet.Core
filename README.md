@@ -6,6 +6,6 @@ CI/CD: [![ensy-net-core](https://github.com/EnsyFane/EnsyNet.Core/actions/workfl
 
 Since I am the main consumer of this NuGet package, only the latest .NET version will be supported. If someone specifically requests support for older, still-supported LTS .NET versions, I will consider adding it.
 
-https://www.nuget.org/packages/EnsyNet.Core
-https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions
+https://www.nuget.org/packages/EnsyNet.Core<br>
+https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions<br>
 https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework
