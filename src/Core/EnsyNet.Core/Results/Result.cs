@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using JetBrains.Annotations;
 
 namespace EnsyNet.Core.Results;
 
@@ -20,9 +22,8 @@ public record Result
     /// <summary>
     /// Whether the operation completed with errors or not.
     /// </summary>
-    public bool HasError => Error is not null;
-    
-    internal Result() { }
+    [MemberNotNullWhen(returnValue: true, member: nameof(Error))]
+    public virtual bool HasError => Error is not null;
 
     /// <summary>
     /// Gets a new <see cref="Result"/> instance with no errors.
@@ -43,6 +44,7 @@ public record Result
     /// </summary>
     /// <param name="error">The specified error.</param>
     /// <returns>A <see cref="Result"/> instance with an error.</returns>
+    [MemberNotNull(member: nameof(Error))]
     public static Result FromError(Error error) => new() { Error = error };
 
     /// <summary>
@@ -51,6 +53,7 @@ public record Result
     /// <typeparam name="T">The type of the data stored in the result</typeparam>
     /// <param name="error">The specified error.</param>
     /// <returns>A <see cref="Result{T}"/> instance with an error.</returns>
+    [MemberNotNull(member: nameof(Error))]
     public static Result<T> FromError<T>(Error error) => new() { Error = error };
 }
 
@@ -62,4 +65,10 @@ public sealed record Result<T> : Result
     /// The data returned by the operation. (If applicable)
     /// </summary>
     public T? Data { get; init; }
+
+    /// <summary>
+    /// Whether the operation completed with errors or not.
+    /// </summary>
+    [MemberNotNullWhen(returnValue: false, member: nameof(Data))]
+    public override bool HasError => Error is not null;
 }
