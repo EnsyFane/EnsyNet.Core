@@ -6,11 +6,9 @@ using EnsyNet.DataAccess.Abstractions.Models;
 using EnsyNet.DataAccess.EntityFramework.Extensions;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 
 using JetBrains.Annotations;
 
@@ -22,7 +20,7 @@ namespace EnsyNet.DataAccess.EntityFramework;
 /// <typeparam name="T">The type of the entity that this repository operates on.</typeparam>
 [PublicAPI]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Needed until we know what exceptions can be thrown by EF.")]
-public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEntity
+public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
 {
     private readonly DbContext _dbContext;
     private readonly DbSet<T> _dbSet;
@@ -251,14 +249,20 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         }, ct);
 
     /// <inheritdoc />
-    public async Task<Result> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct)
+    public async Task<Result> Update(Guid id, Action<EntityUpdates<T>> updateAction, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            var sanitizedAction = SanitizeUpdateAction(updateExpression.GetUpdateSettersAction());
+            var updates = new EntityUpdates<T>();
+            updateAction(updates);
+
+            if (updates.HasProtectedPropertyUpdate)
+            {
+                return Result.FromError<int>(new InvalidUpdateEntityExpressionError());
+            }
 
             var affectedRows = await _dbSet
                 .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(sanitizedAction, ct);
+                .ExecuteUpdateAsync(updates.ToUpdateSettersAction(), ct);
 
             if (affectedRows == 0)
             {
@@ -270,17 +274,23 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> Update(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
+    public async Task<Result<int>> Update(IDictionary<Guid, Action<EntityUpdates<T>>> idToUpdateMap, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach(var kvp in idToUpdateMap)
             {
-                var sanitizedAction = SanitizeUpdateAction(kvp.Value.GetUpdateSettersAction());
+                var updates = new EntityUpdates<T>();
+                kvp.Value(updates);
+
+                if (updates.HasProtectedPropertyUpdate)
+                {
+                    return Result.FromError<int>(new InvalidUpdateEntityExpressionError());
+                }
 
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)
-                    .ExecuteUpdateAsync(sanitizedAction, ct);
+                    .ExecuteUpdateAsync(updates.ToUpdateSettersAction(), ct);
                 totalAffectedRows += affectedRows;
             }
 
@@ -298,17 +308,23 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         });
 
     /// <inheritdoc />
-    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>>> idToUpdateMap, CancellationToken ct)
+    public async Task<Result<int>> UpdateAtomic(IDictionary<Guid, Action<EntityUpdates<T>>> idToUpdateMap, CancellationToken ct)
         => await ExecuteAtomicDbQuery(async () =>
         {
             var totalAffectedRows = 0;
             foreach (var kvp in idToUpdateMap)
             {
-                var sanitizedAction = SanitizeUpdateAction(kvp.Value.GetUpdateSettersAction());
+                var updates = new EntityUpdates<T>();
+                kvp.Value(updates);
+
+                if (updates.HasProtectedPropertyUpdate)
+                {
+                    return Result.FromError<int>(new InvalidUpdateEntityExpressionError());
+                }
 
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)
-                    .ExecuteUpdateAsync(sanitizedAction, ct);
+                    .ExecuteUpdateAsync(updates.ToUpdateSettersAction(), ct);
                 totalAffectedRows += affectedRows;
             }
 
@@ -517,21 +533,7 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
             DeletedAt = null,
         };
 
-    /// <summary>
-    /// Method that can be used to sanitize an update action before updating an entity in the database when not using a predefined Update method.
-    /// </summary>
-    /// <param name="updateAction">The action to be sanitized.</param>
-    /// <returns>A new action that has been sanitized, ready to be used to update a <see cref="DbEntity"/>.</returns>
-    protected static Action<UpdateSettersBuilder<T>> SanitizeUpdateAction(Action<UpdateSettersBuilder<T>> updateAction)
-        => builder =>
-        {
-            updateAction(builder);
-            builder.SetProperty(t => t.UpdatedAt, DateTime.UtcNow);
-            builder.SetProperty(t => t.CreatedAt, t => t.CreatedAt);
-            builder.SetProperty(t => t.DeletedAt, (DateTime?)null);
-        };
-
-    /// <summary>
+    ///<summary>
     /// Executes a database query and handles exceptions that can be thrown by Entity Framework.
     /// </summary>
     /// <typeparam name="TResult">The type of the data to be returned.</typeparam>
@@ -552,11 +554,6 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         {
             _logger.LogError(e, "Error while saving changes to the database for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
             return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
-        }
-        catch (Exception e) when (InvalidUpdateExpressionExceptionMessageRegex().IsMatch(e.Message))
-        {
-            _logger.LogError(e, "Invalid update expression when updating entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
-            return Result.FromError<TResult>(new InvalidUpdateEntityExpressionError());
         }
         catch (Exception e)
         {
@@ -603,7 +600,4 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
 
     private const string ENTITIES_NOT_SOFT_DELETED_ERROR = "Entities of type {EntityType} were not soft deleted.";
     private const string ENTITIES_NOT_HARD_DELETED_ERROR = "Entities of type {EntityType} were not hard deleted.";
-
-    [GeneratedRegex(@"The column name \'.*\' is specified more than once in .*")]
-    private static partial Regex InvalidUpdateExpressionExceptionMessageRegex();
 }

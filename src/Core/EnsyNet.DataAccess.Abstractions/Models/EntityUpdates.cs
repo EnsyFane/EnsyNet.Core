@@ -1,24 +1,48 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
+
+using System.Linq.Expressions;
 
 namespace EnsyNet.DataAccess.Abstractions.Models;
 
 /// <summary>
-/// Class used to add updates to an entity.
+/// Builder used to specify updates to apply to an entity.
 /// </summary>
 /// <typeparam name="T">The type of the entity to be updated.</typeparam>
 [PublicAPI]
 public sealed class EntityUpdates<T> where T : DbEntity
 {
+    private static readonly HashSet<string> _protectedProperties = ["Id", "CreatedAt", "UpdatedAt", "DeletedAt"];
+    private readonly List<(LambdaExpression PropertyGetter, LambdaExpression ValueSetter)> _updates = [];
+
     /// <summary>
-    /// Method used to add updates to an entity.
+    /// Whether any call to <see cref="AddUpdate{TProp}"/> targeted a protected property (<c>Id</c>, <c>CreatedAt</c>, <c>UpdatedAt</c>, <c>DeletedAt</c>).
     /// </summary>
-    /// <remarks>The method doesn't actually do anything. It is just used to create an expression that can be used by the underlying DB engine to create an SQL query.</remarks>
-    /// <typeparam name="TProp">Type of the entity's property to be updated.</typeparam>
-    /// <param name="propertyGetter">Function to get a property from the entity.</param>
-    /// <param name="propertyValueSetter">Function that returns the value to set on the property retrieved by <paramref name="propertyGetter"/>.</param>
-    /// <returns>A reference to <see cref="EntityUpdates{T}"/> so that calls can be chained.</returns>
-    public EntityUpdates<T> AddUpdate<TProp>(Func<T, TProp> propertyGetter, Func<T, TProp> propertyValueSetter)
+    public bool HasProtectedPropertyUpdate { get; private set; }
+
+    /// <summary>
+    /// Adds an update for the property selected by <paramref name="propertyGetter"/>.
+    /// </summary>
+    /// <typeparam name="TProp">Type of the property to update.</typeparam>
+    /// <param name="propertyGetter">Selects the property to update.</param>
+    /// <param name="valueSetter">Returns the new value for the property.</param>
+    /// <returns>This instance, so calls can be chained.</returns>
+    public EntityUpdates<T> AddUpdate<TProp>(
+        Expression<Func<T, TProp>> propertyGetter,
+        Expression<Func<T, TProp>> valueSetter)
     {
+        if (propertyGetter.Body is MemberExpression { Member.Name: var name }
+            && _protectedProperties.Contains(name))
+        {
+            HasProtectedPropertyUpdate = true;
+        }
+
+        _updates.Add((propertyGetter, valueSetter));
         return this;
     }
+
+    /// <summary>
+    /// Returns the collected property/value expression pairs.
+    /// </summary>
+    public IReadOnlyList<(LambdaExpression PropertyGetter, LambdaExpression ValueSetter)> GetUpdates()
+        => _updates;
 }

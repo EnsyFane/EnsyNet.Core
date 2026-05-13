@@ -5,8 +5,6 @@ using EnsyNet.DataAccess.EntityFramework.Tests.Models;
 
 using FluentAssertions;
 
-using System.Linq.Expressions;
-
 using Xunit;
 
 namespace EnsyNet.DataAccess.EntityFramework.Tests.RepositoryTests;
@@ -142,7 +140,7 @@ public class UpdateTests : RepositoryTestsBase
         await Task.Delay(TimeSpan.FromSeconds(2));
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult1.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
                 { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
@@ -163,7 +161,7 @@ public class UpdateTests : RepositoryTestsBase
     public async Task NoEntities_UpdateMultiple_ReturnsError()
     {
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated") },
             }, CancellationToken.None);
@@ -179,7 +177,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
@@ -197,7 +195,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, CancellationToken.None);
@@ -213,7 +211,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, CancellationToken.None);
@@ -229,7 +227,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.Update(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, CancellationToken.None);
@@ -248,7 +246,7 @@ public class UpdateTests : RepositoryTestsBase
         await Task.Delay(TimeSpan.FromSeconds(2));
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult1.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
                 { insertResult2.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
@@ -269,7 +267,7 @@ public class UpdateTests : RepositoryTestsBase
     public async Task NoEntities_UpdateAtomicMultiple_ReturnsError()
     {
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated") },
             }, CancellationToken.None);
@@ -285,7 +283,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.StringField, _ => "Updated1") },
                 { Guid.NewGuid(), x => x.AddUpdate(e => e.StringField, _ => "Updated2") },
@@ -304,7 +302,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.CreatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, CancellationToken.None);
@@ -320,7 +318,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.UpdatedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, CancellationToken.None);
@@ -336,7 +334,7 @@ public class UpdateTests : RepositoryTestsBase
         insertResult.AssertNoError();
 
         var updateResult = await Repository.UpdateAtomic(
-            new Dictionary<Guid, Expression<Func<EntityUpdates<TestEntity>, EntityUpdates<TestEntity>>>>()
+            new Dictionary<Guid, Action<EntityUpdates<TestEntity>>>()
             {
                 { insertResult.Data!.Id, x => x.AddUpdate(e => e.DeletedAt, _ => DateTime.UtcNow.AddDays(-5)) },
             }, CancellationToken.None);
