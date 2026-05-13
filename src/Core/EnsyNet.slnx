@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Sample/">
+    <File Path="Sample/Directory.Packages.props" />
+    <Project Path="Sample/SampleApp/SampleApp.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Packages.props" />
+    <File Path="NuGet.Config" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <File Path="Tests/Directory.Packages.props" />
+    <Project Path="Tests/EnsyNet.DataAccess.EntityFramework.Tests/EnsyNet.DataAccess.EntityFramework.Tests.csproj" />
+  </Folder>
+  <Project Path="EnsyNet.Core/EnsyNet.Core.csproj" />
+  <Project Path="EnsyNet.DataAccess.Abstractions/EnsyNet.DataAccess.Abstractions.csproj" />
+  <Project Path="EnsyNet.DataAccess.EntityFramework/EnsyNet.DataAccess.EntityFramework.csproj" />
+</Solution>
