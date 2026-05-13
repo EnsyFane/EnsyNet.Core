@@ -10,13 +10,12 @@ internal static class SetPropertyCallsExtensions
         this EntityUpdates<T> updates) where T : DbEntity
         => builder =>
         {
-            foreach (var (propGetter, valueSetter) in updates.GetUpdates())
+            foreach ((var propGetter, var valueSetter) in updates.GetUpdates())
             {
                 var method = typeof(UpdateSettersBuilder<T>)
                     .GetMethods()
                     .First(m =>
-                        m.Name == "SetProperty" &&
-                        m.IsGenericMethod &&
+                        m is { Name: "SetProperty", IsGenericMethod: true } &&
                         m.GetParameters().Length == 2 &&
                         m.GetParameters()[1].ParameterType.IsGenericType &&
                         m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>))
