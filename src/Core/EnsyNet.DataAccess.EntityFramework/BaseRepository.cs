@@ -254,12 +254,11 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
     public async Task<Result> Update(Guid id, Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> updateExpression, CancellationToken ct)
         => await ExecuteDbQuery(async () =>
         {
-            var transformedExpression = updateExpression.GetSetPropertyCallsExpression();
-            var sanitizedUpdateExpression = SanitizeUpdateExpression(transformedExpression);
+            var sanitizedAction = SanitizeUpdateAction(updateExpression.GetUpdateSettersAction());
 
             var affectedRows = await _dbSet
                 .Where(x => x.Id == id)
-                .ExecuteUpdateAsync(sanitizedUpdateExpression, ct);
+                .ExecuteUpdateAsync(sanitizedAction, ct);
 
             if (affectedRows == 0)
             {
@@ -277,12 +276,11 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
             var totalAffectedRows = 0;
             foreach(var kvp in idToUpdateMap)
             {
-                var transformedExpression = kvp.Value.GetSetPropertyCallsExpression();
-                var sanitizedUpdateExpression = SanitizeUpdateExpression(transformedExpression);
+                var sanitizedAction = SanitizeUpdateAction(kvp.Value.GetUpdateSettersAction());
 
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)
-                    .ExecuteUpdateAsync(sanitizedUpdateExpression, ct);
+                    .ExecuteUpdateAsync(sanitizedAction, ct);
                 totalAffectedRows += affectedRows;
             }
 
@@ -306,12 +304,11 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
             var totalAffectedRows = 0;
             foreach (var kvp in idToUpdateMap)
             {
-                var transformedExpression = kvp.Value.GetSetPropertyCallsExpression();
-                var sanitizedUpdateExpression = SanitizeUpdateExpression(transformedExpression);
+                var sanitizedAction = SanitizeUpdateAction(kvp.Value.GetUpdateSettersAction());
 
                 var affectedRows = await _dbSet
                     .Where(x => x.Id == kvp.Key)
-                    .ExecuteUpdateAsync(sanitizedUpdateExpression, ct);
+                    .ExecuteUpdateAsync(sanitizedAction, ct);
                 totalAffectedRows += affectedRows;
             }
 
@@ -521,14 +518,18 @@ public abstract partial class BaseRepository<T> : IRepository<T> where T : DbEnt
         };
 
     /// <summary>
-    /// Method that can be used to sanitize an update expression before updating an entity in the database when not using a predefined Update method.
+    /// Method that can be used to sanitize an update action before updating an entity in the database when not using a predefined Update method.
     /// </summary>
-    /// <param name="updateExpression">The expression to be sanitized.</param>
-    /// <returns>A new expression that has been sanitized, ready to be used to update a <see cref="DbEntity"/>.</returns>
-    protected static Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> SanitizeUpdateExpression(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression)
-        => updateExpression.AddExpression(x => x.SetProperty(t => t.UpdatedAt, DateTime.UtcNow))
-            .AddExpression(x => x.SetProperty(t => t.CreatedAt, t => t.CreatedAt))
-            .AddExpression(x => x.SetProperty(t => t.DeletedAt, (DateTime?)null));
+    /// <param name="updateAction">The action to be sanitized.</param>
+    /// <returns>A new action that has been sanitized, ready to be used to update a <see cref="DbEntity"/>.</returns>
+    protected static Action<UpdateSettersBuilder<T>> SanitizeUpdateAction(Action<UpdateSettersBuilder<T>> updateAction)
+        => builder =>
+        {
+            updateAction(builder);
+            builder.SetProperty(t => t.UpdatedAt, DateTime.UtcNow);
+            builder.SetProperty(t => t.CreatedAt, t => t.CreatedAt);
+            builder.SetProperty(t => t.DeletedAt, (DateTime?)null);
+        };
 
     /// <summary>
     /// Executes a database query and handles exceptions that can be thrown by Entity Framework.
