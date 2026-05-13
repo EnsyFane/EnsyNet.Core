@@ -1,4 +1,5 @@
-﻿using EnsyNet.DataAccess.Abstractions.Errors;
+﻿using EnsyNet.Core.Errors;
+using EnsyNet.DataAccess.Abstractions.Errors;
 using EnsyNet.DataAccess.EntityFramework.Tests.Models;
 
 using FluentAssertions;
@@ -144,6 +145,87 @@ public class SoftDeleteTests : RepositoryTestsBase
                 getEntityInRepoResult.HasError.Should().BeFalse();
             }
         }
+    }
+
+    [Fact]
+    public async Task NoEntities_SoftDeleteByIds_ReturnsError()
+    {
+        var ids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+
+        var deleteResult = await Repository.SoftDelete(ids, CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task PartialEntities_SoftDeleteByIds_SucceedsWithPartialCount()
+    {
+        var insertResult = await Repository.Insert([ValidEntity, ValidEntity, ValidEntity], CancellationToken.None);
+        insertResult.HasError.Should().BeFalse();
+        var entities = insertResult.Data!.ToList();
+        var firstDeleteResult = await Repository.SoftDelete(entities[0].Id, CancellationToken.None);
+        firstDeleteResult.HasError.Should().BeFalse();
+
+        var deleteResult = await Repository.SoftDelete(entities.Select(x => x.Id), CancellationToken.None);
+
+        deleteResult.HasError.Should().BeFalse();
+        deleteResult.Data.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task NoEntities_SoftDeleteByExpression_ReturnsError()
+    {
+        var deleteResult = await Repository.SoftDelete(x => x.StringField == "nonexistent-value", CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task NoEntities_SoftDeleteAtomicByIds_ReturnsError()
+    {
+        var ids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+
+        var deleteResult = await Repository.SoftDeleteAtomic(ids, CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task NoEntities_SoftDeleteAtomicByExpression_ReturnsError()
+    {
+        var deleteResult = await Repository.SoftDeleteAtomic(x => x.StringField == "nonexistent-value", CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task CanceledToken_SoftDeleteById_ReturnsOperationCanceledError()
+    {
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
+        insertResult.HasError.Should().BeFalse();
+        var entity = insertResult.Data!;
+        var canceledToken = new CancellationToken(canceled: true);
+
+        var deleteResult = await Repository.SoftDelete(entity.Id, canceledToken);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<OperationCanceledError>();
+    }
+
+    [Fact]
+    public async Task CanceledToken_SoftDeleteAtomicByIds_ReturnsOperationCanceledError()
+    {
+        var ids = new[] { Guid.NewGuid() };
+        var canceledToken = new CancellationToken(canceled: true);
+
+        var deleteResult = await Repository.SoftDeleteAtomic(ids, canceledToken);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<OperationCanceledError>();
     }
 
     private async Task AssertEntitySoftDeleted(TestEntity originalEntity)

@@ -153,6 +153,70 @@ public class HardDeleteTests : RepositoryTestsBase
         }
     }
 
+    [Fact]
+    public async Task NoEntity_HardDeleteById_ReturnsError()
+    {
+        var deleteResult = await Repository.HardDelete(Guid.NewGuid(), CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<DeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task NoEntities_HardDeleteByIds_ReturnsError()
+    {
+        var ids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+
+        var deleteResult = await Repository.HardDelete(ids, CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task PartialEntities_HardDeleteByIds_SucceedsWithPartialCount()
+    {
+        var insertResult = await Repository.Insert([ValidEntity, ValidEntity, ValidEntity], CancellationToken.None);
+        insertResult.HasError.Should().BeFalse();
+        var entities = insertResult.Data!.ToList();
+        var firstDeleteResult = await Repository.HardDelete(entities[0].Id, CancellationToken.None);
+        firstDeleteResult.HasError.Should().BeFalse();
+
+        var deleteResult = await Repository.HardDelete(entities.Select(x => x.Id), CancellationToken.None);
+
+        deleteResult.HasError.Should().BeFalse();
+        deleteResult.Data.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task NoEntities_HardDeleteByExpression_ReturnsError()
+    {
+        var deleteResult = await Repository.HardDelete(x => x.StringField == "nonexistent-value", CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task NoEntities_HardDeleteAtomicByIds_ReturnsError()
+    {
+        var ids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+
+        var deleteResult = await Repository.HardDeleteAtomic(ids, CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
+    [Fact]
+    public async Task NoEntities_HardDeleteAtomicByExpression_ReturnsError()
+    {
+        var deleteResult = await Repository.HardDeleteAtomic(x => x.StringField == "nonexistent-value", CancellationToken.None);
+
+        deleteResult.HasError.Should().BeTrue();
+        deleteResult.Error.Should().BeOfType<BulkDeleteOperationFailedError>();
+    }
+
     private async Task AssertEntityHardDeleted(TestEntity originalEntity)
     {
         var getEntityInRepoResult = await Repository.GetById(originalEntity.Id, CancellationToken.None);
