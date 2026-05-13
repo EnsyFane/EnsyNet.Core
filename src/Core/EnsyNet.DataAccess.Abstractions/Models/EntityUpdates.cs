@@ -11,7 +11,7 @@ namespace EnsyNet.DataAccess.Abstractions.Models;
 [PublicAPI]
 public sealed class EntityUpdates<T> where T : DbEntity
 {
-    private static readonly HashSet<string> _protectedProperties = ["Id", "CreatedAt", "UpdatedAt", "DeletedAt"];
+    private readonly HashSet<string> _protectedProperties = ["Id", "CreatedAt", "UpdatedAt", "DeletedAt"];
     private readonly List<(LambdaExpression PropertyGetter, LambdaExpression ValueSetter)> _updates = [];
 
     /// <summary>

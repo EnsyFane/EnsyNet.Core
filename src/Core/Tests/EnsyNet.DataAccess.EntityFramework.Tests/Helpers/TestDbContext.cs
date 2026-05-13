@@ -1,13 +1,16 @@
 ﻿using EnsyNet.DataAccess.EntityFramework.Tests.Models;
 using EnsyNet.DataAccess.EntityFramework.Configuration;
 
+using JetBrains.Annotations;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace EnsyNet.DataAccess.EntityFramework.Tests.Helpers;
 
 public sealed class TestDbContext : DbContext
 {
-    public DbSet<TestEntity> TestEntities { get; set; }
+    [PublicAPI]
+    public DbSet<TestEntity> TestEntities { get; }
 
     public TestDbContext(DbContextOptions<TestDbContext> options) : base(options) { }
 
