@@ -17,19 +17,17 @@ ThrowOnError "Failed to start the database container"
 
 New-Item -ItemType Directory -Force -Path ./test-results
 
-dotnet add ./src/Core/Tests/EnsyNet.DataAccess.EntityFramework.Tests package JetBrains.dotCover.CommandLineTools.linux-x64 --version 2023.3.3 --package-directory ./nuget
+dotnet tool install --global dotnet-coverage
+ThrowOnError "Failed to install dotnet-coverage"
 
-dotnet sonarscanner begin -o:"stefan-tataran" -k:"EnsyFane_EnsyNet.Core" -d:sonar.host.url="https://sonarcloud.io" -d:sonar.token="$env:SONAR_TOKEN" -d:sonar.cs.dotcover.reportsPaths="./code-coverage/integration-tests/coverage.html" -d:sonar.coverage.exclusions="**/Tests/**,**/Sample/**,**/code-coverage/**" -d:sonar.exclusions="**/.vs/**,**/*.slnx,**/code-coverage/**"
+dotnet sonarscanner begin -o:"stefan-tataran" -k:"EnsyFane_EnsyNet.Core" -d:sonar.host.url="https://sonarcloud.io" -d:sonar.token="$env:SONAR_TOKEN" -d:sonar.cs.vscoveragexml.reportsPaths="./test-results/coverage.xml" -d:sonar.coverage.exclusions="**/Tests/**,**/Sample/**" -d:sonar.exclusions="**/.vs/**,**/*.slnx"
 ThrowOnError "Failed to start Sonar Scanner session"
 
 dotnet build ./src/Core/Tests/EnsyNet.DataAccess.EntityFramework.Tests/EnsyNet.DataAccess.EntityFramework.Tests.csproj
 ThrowOnError "Failed to build"
 
-./nuget/jetbrains.dotcover.commandlinetools.linux-x64/2023.3.3/tools/dotCover.sh dotnet --Filters="-:module=Humanizer;-:module=vstest.console" --Output="./test-results/coverage.dcvr" -- test ./src/Core/EnsyNet.slnx --no-restore --no-build
-ThrowOnError "Failed to run tests"
-
-./nuget/jetbrains.dotcover.commandlinetools.linux-x64/2023.3.3/tools/dotCover.sh report --Source="./test-results/coverage.dcvr" --Output="./code-coverage/integration-tests/coverage.html" --ReportType="HTML" --SourcesSearchPaths="./src/Core/EnsyNet." --ExcludeFileMasks="./src/Core/Tests/**"
-ThrowOnError "Failed to generate code coverage report"
+dotnet-coverage collect -f xml -o ./test-results/coverage.xml -- dotnet test ./src/Core/EnsyNet.slnx --no-restore --no-build
+ThrowOnError "Failed to run tests and collect coverage"
 
 dotnet sonarscanner end -d:sonar.token="$env:SONAR_TOKEN"
 ThrowOnError "Failed to end Sonar Scanner session"
