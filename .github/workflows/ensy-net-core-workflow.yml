@@ -74,7 +74,7 @@ jobs:
 
       - name: Create package
         shell: pwsh
-        run: dotnet pack EnsyNet.sln -c Release -o ./packed/EnsyNet.Core /p:Version=$env:nuget_version
+        run: dotnet pack EnsyNet.slnx -c Release -o ./packed/EnsyNet.Core /p:Version=$env:nuget_version
         working-directory: ./src/Core
 
       - name: Push package

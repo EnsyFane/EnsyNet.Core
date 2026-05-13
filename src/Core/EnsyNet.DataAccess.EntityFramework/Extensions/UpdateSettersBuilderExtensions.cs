@@ -4,16 +4,18 @@ using System.Linq.Expressions;
 
 namespace EnsyNet.DataAccess.EntityFramework.Extensions;
 
-internal static class SetPropertyCallsExtensions
+internal static class UpdateSettersBuilderExtensions
 {
     public static Action<UpdateSettersBuilder<T>> GetUpdateSettersAction<T>(
         this Expression<Func<EntityUpdates<T>, EntityUpdates<T>>> expression) where T : DbEntity
     {
-        var setterActions = ExtractSetterActions<T>(expression);
+        var setterActions = ExtractSetterActions(expression);
         return builder =>
         {
             foreach (var action in setterActions)
+            {
                 action(builder);
+            }
         };
     }
 
@@ -40,8 +42,7 @@ internal static class SetPropertyCallsExtensions
         var setPropertyMethod = typeof(UpdateSettersBuilder<T>)
             .GetMethods()
             .First(m =>
-                m.Name == "SetProperty" &&
-                m.IsGenericMethod &&
+                m is { Name: "SetProperty", IsGenericMethod: true } &&
                 m.GetParameters().Length == 2 &&
                 m.GetParameters()[1].ParameterType.IsGenericType &&
                 m.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Expression<>))
