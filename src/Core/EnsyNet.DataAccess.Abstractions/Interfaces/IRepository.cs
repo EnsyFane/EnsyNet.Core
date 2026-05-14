@@ -29,9 +29,9 @@ public interface IRepository<T> where T : DbEntity
     /// <summary>
     /// Retrieves the first entity from the database that matches the given <paramref name="filter"/>.
     /// </summary>
-    /// <returns>
     /// <param name="filter">The filter expression to be used for the database query.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
     /// The found entity or <br/>
     /// An <see cref="Errors.EntityNotFoundError{T}"/> if no entity was found or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
@@ -42,8 +42,8 @@ public interface IRepository<T> where T : DbEntity
     /// Retrieves all entities from the database. Not recommended.
     /// </summary>
     /// <remarks>This might be a resource intensive operation and can lead to an <see cref="OutOfMemoryException"/>.</remarks>
-    /// <returns>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>
     /// The entities or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
@@ -201,13 +201,14 @@ public interface IRepository<T> where T : DbEntity
     /// <returns>
     /// The number of updated entities or <br/>
     /// An <see cref="Errors.InvalidUpdateEntityExpressionError"/> if the user provided an invalid update expression or <br/>
+    /// An <see cref="Errors.BulkUpdateOperationFailedError"/> if update fails or <br/>
     /// An <see cref="Errors.UnexpectedDatabaseError"/> if there was an unexpected database error.
     /// </returns>
     Task<Result<int>> Update(IDictionary<Guid, Action<EntityUpdates<T>>> idToUpdateMap, CancellationToken ct);
 
     /// <summary>
     /// Updates multiple entities from the database. Will fail and rollback if one update fails.
-    /// If one update fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
+    /// If one update fails, the operation will fail and <see cref="Errors.BulkUpdateOperationFailedError"/> will be returned.
     /// </summary>
     /// <remarks>The <see cref="DbEntity.Id"/>, <see cref="DbEntity.CreatedAt"/>, <see cref="DbEntity.UpdatedAt"/> and <see cref="DbEntity.DeletedAt"/> fields can not be updated manually.</remarks>
     /// <param name="idToUpdateMap">A map from an entity id to an action that configures the updates to apply to the entity.</param>
@@ -258,7 +259,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Soft delete multiple entities from the database based on ids. Will fail and rollback if one soft delete fails.
-    /// If one soft delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
+    /// If one soft delete fails, the operation will fail and <see cref="Errors.BulkDeleteOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="ids">The ids of the entities to soft-delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -271,7 +272,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Soft delete multiple entities from the database based on a given filter. Will fail and rollback if one soft delete fails.
-    /// If one soft delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
+    /// If one soft delete fails, the operation will fail and <see cref="Errors.BulkDeleteOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to soft-delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -320,7 +321,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Hard delete multiple entities from the database based on ids. Will fail and rollback if one hard delete fails.
-    /// If one hard delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
+    /// If one hard delete fails, the operation will fail and <see cref="Errors.BulkDeleteOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="ids">The ids of the entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -333,7 +334,7 @@ public interface IRepository<T> where T : DbEntity
 
     /// <summary>
     /// Hard delete multiple entities from the database based on a given filter. Will fail and rollback if one hard delete fails.
-    /// If one hard delete fails, the operation will fail and <see cref="Errors.BulkInsertOperationFailedError"/> will be returned.
+    /// If one hard delete fails, the operation will fail and <see cref="Errors.BulkDeleteOperationFailedError"/> will be returned.
     /// </summary>
     /// <param name="filter">The filter to apply to search for entities to hard delete.</param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>

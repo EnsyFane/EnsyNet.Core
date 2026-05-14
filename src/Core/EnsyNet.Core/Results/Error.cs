@@ -35,7 +35,7 @@ public abstract record Error
     }
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="Error"/> class with an error code and exception.
     /// </summary>
     /// <param name="errorCode">The <see cref="ErrorCode"/> of the error.</param>
     /// <param name="exception">The <see cref="Exception"/> of the error.</param>
@@ -48,7 +48,7 @@ public abstract record Error
     }
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="Error"/> class with an error code and message.
     /// </summary>
     /// <param name="errorCode">The <see cref="ErrorCode"/> of the error.</param>
     /// <param name="errorMessage">The <see cref="ErrorMessage"/> of the error.</param>
@@ -60,7 +60,7 @@ public abstract record Error
     }
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="Error"/> class with an error code, exception, and message.
     /// </summary>
     /// <param name="errorCode">The <see cref="ErrorCode"/> of the error.</param>
     /// <param name="exception">The <see cref="Exception"/> of the error.</param>
