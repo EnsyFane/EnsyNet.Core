@@ -11,8 +11,8 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <Authors>EnsyFane</Authors>
     <Company>EnsyInc</Company>
-    <PackageProjectUrl>https://github.com/EnsyFane/EnsyNet.Core</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/EnsyFane/EnsyNet.Core</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/EnsyInc/EnsyNet.Core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/EnsyInc/EnsyNet.Core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
