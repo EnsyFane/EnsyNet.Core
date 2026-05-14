@@ -6,6 +6,8 @@ CI/CD: [![ensy-net-core](https://github.com/EnsyFane/EnsyNet.Core/actions/workfl
 
 Since I am the main consumer of this NuGet package, only the latest .NET version will be supported. If someone specifically requests support for older, still-supported LTS .NET versions, I will consider adding it.
 
-https://www.nuget.org/packages/EnsyNet.Core<br>
-https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions<br>
-https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework<br>
+| Package | Version | Downloads |
+|---|---|---|
+| [EnsyNet.Core](https://www.nuget.org/packages/EnsyNet.Core) | [![NuGet](https://img.shields.io/nuget/v/EnsyNet.Core)](https://www.nuget.org/packages/EnsyNet.Core) | [![NuGet Downloads](https://img.shields.io/nuget/dt/EnsyNet.Core)](https://www.nuget.org/packages/EnsyNet.Core) |
+| [EnsyNet.DataAccess.Abstractions](https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions) | [![NuGet](https://img.shields.io/nuget/v/EnsyNet.DataAccess.Abstractions)](https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions) | [![NuGet Downloads](https://img.shields.io/nuget/dt/EnsyNet.DataAccess.Abstractions)](https://www.nuget.org/packages/EnsyNet.DataAccess.Abstractions) |
+| [EnsyNet.DataAccess.EntityFramework](https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework) | [![NuGet](https://img.shields.io/nuget/v/EnsyNet.DataAccess.EntityFramework)](https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework) | [![NuGet Downloads](https://img.shields.io/nuget/dt/EnsyNet.DataAccess.EntityFramework)](https://www.nuget.org/packages/EnsyNet.DataAccess.EntityFramework) |
