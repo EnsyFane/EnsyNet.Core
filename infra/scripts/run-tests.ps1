@@ -20,7 +20,7 @@ New-Item -ItemType Directory -Force -Path ./test-results
 dotnet tool install --global dotnet-coverage
 ThrowOnError "Failed to install dotnet-coverage"
 
-dotnet sonarscanner begin -o:"stefan-tataran" -k:"EnsyFane_EnsyNet.Core" -d:sonar.host.url="https://sonarcloud.io" -d:sonar.token="$env:SONAR_TOKEN" -d:sonar.cs.vscoveragexml.reportsPaths="./test-results/coverage.xml" -d:sonar.coverage.exclusions="**/Tests/**,**/Sample/**" -d:sonar.exclusions="**/.vs/**,**/*.slnx"
+dotnet sonarscanner begin -o:"ensyinc" -k:"EnsyInc_EnsyNet.Core" -d:sonar.host.url="https://sonarcloud.io" -d:sonar.token="$env:SONAR_TOKEN" -d:sonar.cs.vscoveragexml.reportsPaths="./test-results/coverage.xml" -d:sonar.coverage.exclusions="**/Tests/**,**/Sample/**" -d:sonar.exclusions="**/.vs/**,**/*.slnx"
 ThrowOnError "Failed to start Sonar Scanner session"
 
 dotnet build ./src/Core/Tests/EnsyNet.DataAccess.EntityFramework.Tests/EnsyNet.DataAccess.EntityFramework.Tests.csproj
