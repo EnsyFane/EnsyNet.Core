@@ -533,7 +533,7 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             DeletedAt = null,
         };
 
-    ///<summary>
+    /// <summary>
     /// Executes a database query and handles exceptions that can be thrown by Entity Framework.
     /// </summary>
     /// <typeparam name="TResult">The type of the data to be returned.</typeparam>

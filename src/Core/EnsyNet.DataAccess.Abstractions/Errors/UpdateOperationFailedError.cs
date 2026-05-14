@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace EnsyNet.DataAccess.Abstractions.Errors;
 
 /// <summary>
-/// Error returned when a bulk update operation fails.
+/// Error returned when an update operation fails.
 /// </summary>
 [PublicAPI]
 public sealed record UpdateOperationFailedError : Error
