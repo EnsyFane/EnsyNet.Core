@@ -52,4 +52,14 @@ public static class ErrorCodes
     /// Error code for when an update operation fails due to an invalid expression provided by the user.
     /// </summary>
     public const string InvalidUpdateEntityExpressionError = "[InvalidUpdateEntityExpressionError]";
+
+    /// <summary>
+    /// Error code for when a database operation fails because it would violate a unique constraint/index.
+    /// </summary>
+    public const string UniqueConstraintViolationError = "[UniqueConstraintViolationError]";
+
+    /// <summary>
+    /// Error code for when a database operation fails because it would violate a foreign key constraint.
+    /// </summary>
+    public const string ForeignKeyConstraintViolationError = "[ForeignKeyConstraintViolationError]";
 }

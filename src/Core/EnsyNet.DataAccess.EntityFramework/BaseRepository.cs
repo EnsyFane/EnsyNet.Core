@@ -5,6 +5,8 @@ using EnsyNet.DataAccess.Abstractions.Interfaces;
 using EnsyNet.DataAccess.Abstractions.Models;
 using EnsyNet.DataAccess.EntityFramework.Extensions;
 
+using Microsoft.Data.SqlClient;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -550,6 +552,16 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             _logger.LogWarning(e, "Operation was canceled while executing db query for entity of type {EntityType}.", typeof(T).Name);
             return Result.FromError<TResult>(new OperationCanceledError(e));
         }
+        catch (Exception e) when (GetSqlException(e) is { Number: 2601 or 2627 })
+        {
+            _logger.LogWarning(e, "Unique constraint violation while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new UniqueConstraintViolationError(e));
+        }
+        catch (Exception e) when (GetSqlException(e) is { Number: 547 })
+        {
+            _logger.LogWarning(e, "Foreign key constraint violation while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new ForeignKeyConstraintViolationError(e));
+        }
         catch (DbUpdateException e)
         {
             _logger.LogError(e, "Error while saving changes to the database for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
@@ -597,6 +609,14 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             return Result.FromError<TResult>(new UnexpectedDatabaseError(e));
         }
     }
+
+    /// <summary>
+    /// Extracts the <see cref="SqlException"/> from an exception thrown while executing a db query, whether it was thrown
+    /// directly (e.g. from <c>ExecuteUpdateAsync</c>/<c>ExecuteDeleteAsync</c>, which bypass <c>SaveChanges</c>) or wrapped
+    /// in a <see cref="DbUpdateException"/> (thrown by <c>SaveChanges</c>).
+    /// </summary>
+    private static SqlException? GetSqlException(Exception e)
+        => e as SqlException ?? e.InnerException as SqlException;
 
     private const string ENTITIES_NOT_SOFT_DELETED_ERROR = "Entities of type {EntityType} were not soft deleted.";
     private const string ENTITIES_NOT_HARD_DELETED_ERROR = "Entities of type {EntityType} were not hard deleted.";

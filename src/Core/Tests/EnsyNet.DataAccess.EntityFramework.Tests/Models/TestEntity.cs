@@ -13,4 +13,5 @@ public sealed record TestEntity : DbEntity
     public required DateTime DateTimeField { get; init; }
     public required TimeSpan TimeSpanField { get; init; }
     public required Guid GuidField { get; init; }
+    public string? UniqueField { get; init; }
 }

@@ -15,7 +15,7 @@ public sealed class EntityUpdates<T> where T : DbEntity
     private readonly List<(LambdaExpression PropertyGetter, LambdaExpression ValueSetter)> _updates = [];
 
     /// <summary>
-    /// Whether any call to <see cref="AddUpdate{TProp}"/> targeted a protected property (<c>Id</c>, <c>CreatedAt</c>, <c>UpdatedAt</c>, <c>DeletedAt</c>).
+    /// Whether any call to <c>AddUpdate</c> targeted a protected property (<c>Id</c>, <c>CreatedAt</c>, <c>UpdatedAt</c>, <c>DeletedAt</c>).
     /// </summary>
     public bool HasProtectedPropertyUpdate { get; private set; }
 
@@ -38,6 +38,22 @@ public sealed class EntityUpdates<T> where T : DbEntity
 
         _updates.Add((propertyGetter, valueSetter));
         return this;
+    }
+
+    /// <summary>
+    /// Adds an update for the property selected by <paramref name="propertyGetter"/>, setting it to a fixed <paramref name="value"/>.
+    /// </summary>
+    /// <typeparam name="TProp">Type of the property to update.</typeparam>
+    /// <param name="propertyGetter">Selects the property to update.</param>
+    /// <param name="value">The new value for the property.</param>
+    /// <returns>This instance, so calls can be chained.</returns>
+    public EntityUpdates<T> AddUpdate<TProp>(
+        Expression<Func<T, TProp>> propertyGetter,
+        TProp value)
+    {
+        var parameter = Expression.Parameter(typeof(T), "x");
+        var valueSetter = Expression.Lambda<Func<T, TProp>>(Expression.Constant(value, typeof(TProp)), parameter);
+        return AddUpdate(propertyGetter, valueSetter);
     }
 
     /// <summary>
