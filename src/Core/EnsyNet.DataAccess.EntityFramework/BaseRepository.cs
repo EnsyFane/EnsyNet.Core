@@ -562,6 +562,11 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             _logger.LogWarning(e, "Foreign key constraint violation while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
             return Result.FromError<TResult>(new ForeignKeyConstraintViolationError(e));
         }
+        catch (Exception e) when (IsDatabaseUnavailable(e))
+        {
+            _logger.LogError(e, "Database was unavailable while executing db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new DatabaseUnavailableError(e));
+        }
         catch (DbUpdateException e)
         {
             _logger.LogError(e, "Error while saving changes to the database for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
@@ -603,6 +608,11 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
             _logger.LogWarning(e, "Operation was cancelled while executing atomic db query for entity of type {EntityType}.", typeof(T).Name);
             return Result.FromError<TResult>(new OperationCanceledError(e));
         }
+        catch (Exception e) when (IsDatabaseUnavailable(e))
+        {
+            _logger.LogError(e, "Database was unavailable while executing atomic db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
+            return Result.FromError<TResult>(new DatabaseUnavailableError(e));
+        }
         catch (Exception e)
         {
             _logger.LogError(e, "Error while executing atomic db query for entity of type {EntityType}. Exception: {Exception}.", typeof(T).Name, e);
@@ -617,6 +627,19 @@ public abstract class BaseRepository<T> : IRepository<T> where T : DbEntity
     /// </summary>
     private static SqlException? GetSqlException(Exception e)
         => e as SqlException ?? e.InnerException as SqlException;
+
+    /// <summary>
+    /// Determines whether an exception thrown while executing a db query indicates that the database could not be
+    /// reached, e.g. connection refused, connection timeout, or the server terminating the connection.
+    /// </summary>
+    /// <remarks>
+    /// A <see cref="SqlException.Number"/> of -2 signals a client-side timeout (e.g. connection or command timeout).
+    /// A <see cref="SqlException.Class"/> of 20 or higher signals a fatal server-side error, which per SQL Server's
+    /// severity level documentation always terminates the connection (e.g. connection refused, server down, or the
+    /// connection being dropped mid-query) rather than a business-level error like a constraint violation.
+    /// </remarks>
+    private static bool IsDatabaseUnavailable(Exception e)
+        => e is TimeoutException || GetSqlException(e) is { Number: -2 } or { Class: >= 20 };
 
     private const string ENTITIES_NOT_SOFT_DELETED_ERROR = "Entities of type {EntityType} were not soft deleted.";
     private const string ENTITIES_NOT_HARD_DELETED_ERROR = "Entities of type {EntityType} were not hard deleted.";
