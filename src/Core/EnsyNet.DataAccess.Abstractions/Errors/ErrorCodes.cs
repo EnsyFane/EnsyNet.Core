@@ -62,4 +62,9 @@ public static class ErrorCodes
     /// Error code for when a database operation fails because it would violate a foreign key constraint.
     /// </summary>
     public const string ForeignKeyConstraintViolationError = "[ForeignKeyConstraintViolationError]";
+
+    /// <summary>
+    /// Error code for when the repository could not reach the database (connection refused, timeout, server down, etc.).
+    /// </summary>
+    public const string DatabaseUnavailableError = "[DatabaseUnavailableError]";
 }
