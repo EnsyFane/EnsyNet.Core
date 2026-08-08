@@ -53,6 +53,25 @@ public class UpdateTests : RepositoryTestsBase
     }
 
     [Fact]
+    public async Task ExistingEntity_UpdateByIdWithConstantValueOverload_EntityUpdated()
+    {
+        var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);
+        insertResult.AssertNoError();
+        var entity = insertResult.Data!;
+
+        var updateResult = await Repository.Update(
+            entity.Id,
+            x => x.AddUpdate(e => e.StringField, "Updated")
+                .AddUpdate(e => e.IntField, 2602),
+            CancellationToken.None);
+
+        updateResult.AssertNoError();
+        var updatedEntity = await Repository.GetById(entity.Id, CancellationToken.None);
+        updatedEntity.Data!.StringField.Should().Be("Updated");
+        updatedEntity.Data!.IntField.Should().Be(2602);
+    }
+
+    [Fact]
     public async Task ExistingEntity_UpdateByIdUsingOtherProperty_EntityUpdated()
     {
         var insertResult = await Repository.Insert(ValidEntity, CancellationToken.None);

@@ -9,11 +9,13 @@ public abstract class RepositoryTestsBase : IDisposable
 {
     protected readonly TestDbContext DbContext;
     protected readonly TestRepository Repository;
+    protected readonly ChildTestRepository ChildRepository;
 
     protected RepositoryTestsBase()
     {
         DbContext = new(DatabaseConfiguration.Options);
         Repository = new(DbContext);
+        ChildRepository = new(DbContext);
     }
 
     protected readonly TestEntity ValidEntity = new()
